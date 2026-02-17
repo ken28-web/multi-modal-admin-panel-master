@@ -12,7 +12,6 @@ import { styles } from "../components/admin-styles/private-admin.styles";
 
 type EditablePrivateVehicleFuelSetting = PrivateVehicleFuelSetting & {
   fuel_efficiency_input: string;
-  fuel_price_input: string;
 };
 
 function toEditable(
@@ -21,7 +20,6 @@ function toEditable(
   return rows.map((row) => ({
     ...row,
     fuel_efficiency_input: String(row.fuel_efficiency),
-    fuel_price_input: String(row.fuel_price),
   }));
 }
 
@@ -33,6 +31,10 @@ export default function PrivateAdminScreen() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [globalFuelPriceInput, setGlobalFuelPriceInput] =
+    useState<string>("60");
+  const [initialGlobalFuelPriceInput, setInitialGlobalFuelPriceInput] =
+    useState<string>("60");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -45,6 +47,10 @@ export default function PrivateAdminScreen() {
       const editable = toEditable(data);
       setRows(editable);
       setInitialRows(editable);
+      const globalFuel =
+        data.length > 0 ? String(Number(data[0].fuel_price || 0)) : "60";
+      setGlobalFuelPriceInput(globalFuel);
+      setInitialGlobalFuelPriceInput(globalFuel);
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Failed to load private settings",
@@ -62,25 +68,26 @@ export default function PrivateAdminScreen() {
     () =>
       rows.some((row) => {
         const efficiency = Number(row.fuel_efficiency_input);
-        const price = Number(row.fuel_price_input);
-        return (
-          !Number.isFinite(efficiency) ||
-          efficiency <= 0 ||
-          !Number.isFinite(price) ||
-          price <= 0
-        );
+        return !Number.isFinite(efficiency) || efficiency <= 0;
       }),
     [rows],
   );
 
+  const hasInvalidGlobalFuelPrice = useMemo(() => {
+    const price = Number(globalFuelPriceInput);
+    return !Number.isFinite(price) || price <= 0;
+  }, [globalFuelPriceInput]);
+
   const hasChanges = useMemo(
-    () => JSON.stringify(rows) !== JSON.stringify(initialRows),
-    [rows, initialRows],
+    () =>
+      JSON.stringify(rows) !== JSON.stringify(initialRows) ||
+      globalFuelPriceInput !== initialGlobalFuelPriceInput,
+    [rows, initialRows, globalFuelPriceInput, initialGlobalFuelPriceInput],
   );
 
   const updateField = (
     index: number,
-    field: "fuel_efficiency_input" | "fuel_price_input",
+    field: "fuel_efficiency_input",
     value: string,
   ) => {
     setRows((prev) =>
@@ -92,6 +99,7 @@ export default function PrivateAdminScreen() {
 
   const handleReset = () => {
     setRows(initialRows);
+    setGlobalFuelPriceInput(initialGlobalFuelPriceInput);
     setError(null);
     setMessage(null);
   };
@@ -99,15 +107,17 @@ export default function PrivateAdminScreen() {
   const handleSave = async () => {
     setError(null);
     setMessage(null);
-    if (hasInvalidInput) {
-      setError("Fuel efficiency and fuel price must both be greater than 0.");
+    if (hasInvalidInput || hasInvalidGlobalFuelPrice) {
+      setError("Fuel efficiency and global fuel price must be greater than 0.");
       return;
     }
+
+    const globalFuelPrice = Number(globalFuelPriceInput);
 
     const payload: PrivateVehicleFuelSetting[] = rows.map((row) => ({
       vehicle_type: row.vehicle_type,
       fuel_efficiency: Number(row.fuel_efficiency_input),
-      fuel_price: Number(row.fuel_price_input),
+      fuel_price: globalFuelPrice,
     }));
 
     setIsSaving(true);
@@ -116,6 +126,12 @@ export default function PrivateAdminScreen() {
       const editable = toEditable(updated);
       setRows(editable);
       setInitialRows(editable);
+      const updatedGlobalFuel =
+        updated.length > 0
+          ? String(Number(updated[0].fuel_price || 0))
+          : globalFuelPriceInput;
+      setGlobalFuelPriceInput(updatedGlobalFuel);
+      setInitialGlobalFuelPriceInput(updatedGlobalFuel);
       setMessage("Private vehicle fuel settings saved.");
     } catch (e) {
       setError(
@@ -142,8 +158,19 @@ export default function PrivateAdminScreen() {
         <View style={styles.card}>
           <Text style={styles.infoTitle}>Private Vehicle Fuel Settings</Text>
           <Text style={styles.infoText}>
-            Edit fixed fuel efficiency and fuel price values per vehicle type.
+            Edit fixed fuel efficiency values per vehicle type and one global
+            fuel price for all vehicle types.
           </Text>
+
+          <Text style={styles.fieldLabel}>Global Fuel Price (₱/L)</Text>
+          <TextInput
+            value={globalFuelPriceInput}
+            onChangeText={setGlobalFuelPriceInput}
+            keyboardType="decimal-pad"
+            style={styles.input}
+            placeholder="0"
+            placeholderTextColor="#687286"
+          />
 
           {isLoading ? (
             <Text style={styles.loadingText}>Loading settings...</Text>
@@ -169,18 +196,6 @@ export default function PrivateAdminScreen() {
                     placeholder="0"
                     placeholderTextColor="#687286"
                   />
-
-                  <Text style={styles.fieldLabel}>Fuel Price (₱/L)</Text>
-                  <TextInput
-                    value={row.fuel_price_input}
-                    onChangeText={(value) =>
-                      updateField(index, "fuel_price_input", value)
-                    }
-                    keyboardType="decimal-pad"
-                    style={styles.input}
-                    placeholder="0"
-                    placeholderTextColor="#687286"
-                  />
                 </View>
               ))
             : null}
@@ -199,11 +214,21 @@ export default function PrivateAdminScreen() {
             <Pressable
               style={[
                 styles.primaryButton,
-                (!hasChanges || hasInvalidInput || isSaving || isLoading) &&
+                (!hasChanges ||
+                  hasInvalidInput ||
+                  hasInvalidGlobalFuelPrice ||
+                  isSaving ||
+                  isLoading) &&
                   styles.primaryButtonDisabled,
               ]}
               onPress={handleSave}
-              disabled={!hasChanges || hasInvalidInput || isSaving || isLoading}
+              disabled={
+                !hasChanges ||
+                hasInvalidInput ||
+                hasInvalidGlobalFuelPrice ||
+                isSaving ||
+                isLoading
+              }
             >
               <Text style={styles.primaryButtonText}>
                 {isSaving ? "Saving..." : "Save"}
