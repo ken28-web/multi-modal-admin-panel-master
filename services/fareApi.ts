@@ -11,6 +11,12 @@ export type PrivateFareSettings = {
   fuel_price: number;
 };
 
+export type PrivateVehicleFuelSetting = {
+  vehicle_type: string;
+  fuel_efficiency: number;
+  fuel_price: number;
+};
+
 export type FareRuleRow = {
   transport_mode: string;
   service_type: string;
@@ -131,6 +137,26 @@ export async function updatePrivateFareSettings(
     method: "PUT",
     body: JSON.stringify(settings),
   });
+}
+
+export async function getPrivateVehicleFuelSettings(): Promise<
+  PrivateVehicleFuelSetting[]
+> {
+  return request<PrivateVehicleFuelSetting[]>(
+    "/admin/fare-rates/private-vehicles",
+  );
+}
+
+export async function updatePrivateVehicleFuelSettings(
+  rows: PrivateVehicleFuelSetting[],
+): Promise<PrivateVehicleFuelSetting[]> {
+  return request<PrivateVehicleFuelSetting[]>(
+    "/admin/fare-rates/private-vehicles",
+    {
+      method: "PUT",
+      body: JSON.stringify({ rows }),
+    },
+  );
 }
 
 export async function generatePublicFareRows(
