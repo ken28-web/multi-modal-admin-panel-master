@@ -1,42 +1,21 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Login() {
   const router = useRouter();
-  const [usernameFocused, setUsernameFocused] = useState(false);
-  const [passwordFocused, setPasswordFocused] = useState(false);
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Admin Login</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          placeholderTextColor={usernameFocused ? "#cccccc62" : "#999"}
-          onFocus={() => setUsernameFocused(true)}
-          onBlur={() => setUsernameFocused(false)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor={passwordFocused ? "#cccccc62" : "#999"}
-          secureTextEntry
-          onFocus={() => setPasswordFocused(true)}
-          onBlur={() => setPasswordFocused(false)}
-        />
+        <Text style={styles.title}>Transport Fare Admin Panel</Text>
+        <Text style={styles.subtitle}>
+          Manage public and private fare rates from this web dashboard.
+        </Text>
         <TouchableOpacity
           style={styles.button}
           onPress={() => router.push("/selection")}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>Open Dashboard</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -48,37 +27,34 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     backgroundColor: "#f5f5f5",
-    paddingRight: 400,
-    paddingLeft: 400,
-    paddingTop: 200,
+    justifyContent: "center",
+    paddingHorizontal: 20,
   },
   card: {
-    width: "85%",
-    padding: 20,
+    width: "100%",
+    maxWidth: 560,
+    padding: 26,
     backgroundColor: "#fff",
     borderRadius: 15,
     elevation: 5,
   },
   title: {
-    fontSize: 25,
+    fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 8,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
+  subtitle: {
+    fontSize: 15,
+    color: "#4b5563",
     textAlign: "center",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 15,
-    marginRight: 100,
-    marginLeft: 100,
+    marginBottom: 16,
   },
   button: {
     backgroundColor: "#007AFF",
-    padding: 8,
-    width: "18%",
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    width: "100%",
     alignSelf: "center",
     borderRadius: 8,
   },
@@ -86,6 +62,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontWeight: "bold",
-    fontSize: 23,
+    fontSize: 18,
   },
 });

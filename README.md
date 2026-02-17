@@ -1,50 +1,49 @@
-# Welcome to your Expo app 👋
+# Multi-Modal Admin Panel (Web)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This admin panel is configured for **web-only** usage.
 
-## Get started
+## What it manages
 
-1. Install dependencies
+- Public transport fare rates (`mode`, `distance_km`, `regular`, `discounted`)
+- Private transport fare settings (`base_fare`, `per_km_rate`, `fuel_price`)
 
-   ```bash
-   npm install
-   ```
+## Requirements
 
-2. Start the app
+- Backend service running (`multi-modal-fare-route-estimator-backend`)
+- Backend includes admin endpoints:
+  - `GET /admin/fare-rates`
+  - `PUT /admin/fare-rates/public`
+  - `PUT /admin/fare-rates/private`
 
-   ```bash
-   npx expo start
-   ```
+## Configure API URL
 
-In the output, you'll find options to open the app in a
+Set one of these environment variables before running the admin panel:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- `EXPO_PUBLIC_ADMIN_API_URL`
+- `EXPO_PUBLIC_API_BASE_URL`
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Default fallback is `http://127.0.0.1:8000`.
 
-## Get a fresh project
+## Configure API Key (if backend requires auth)
 
-When you're ready, run:
+Set these environment variables before running the admin panel:
 
-```bash
-npm run reset-project
+- `EXPO_PUBLIC_ADMIN_API_KEY` (your backend API key value)
+- `EXPO_PUBLIC_ADMIN_API_KEY_HEADER` (optional, default: `X-API-Key`)
+
+Example (PowerShell):
+
+```powershell
+$env:EXPO_PUBLIC_ADMIN_API_KEY = "your_api_key_here"
+$env:EXPO_PUBLIC_ADMIN_API_KEY_HEADER = "X-API-Key"
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Run (web only)
 
-## Learn more
+```bash
+npm install
+npm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+`npm start` launches Expo in web mode (`expo start --web`).

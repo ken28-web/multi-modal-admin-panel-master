@@ -1,59 +1,31 @@
-import React, { useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-export default function AdminPanel() {
-  const [fare, setFare] = useState("");
-  const [fuel, setFuel] = useState("");
-  const [fareFocused, setFareFocused] = useState(false);
-  const [fuelFocused, setFuelFocused] = useState(false);
-
-  const handleUpdate = () => {
-    console.log("Fare Updated to:", fare);
-    console.log("Fuel Updated to:", fuel);
-    alert("Prices updated successfully!");
-  };
+export default function PrivateAdminScreen() {
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Admin Panel</Text>
+      <View style={styles.headerRow}>
+        <Pressable
+          style={styles.secondaryButton}
+          onPress={() => router.push("/selection")}
+        >
+          <Text style={styles.secondaryButtonText}>Back</Text>
+        </Pressable>
+        <Text style={styles.header}>Private Transport</Text>
+      </View>
 
-      {/* This View acts as your "Box" */}
       <View style={styles.card}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Fare Price</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="0.00"
-            placeholderTextColor={fareFocused ? "#ccc" : "#999"}
-            value={fare}
-            onChangeText={setFare}
-            keyboardType="numeric"
-            onFocus={() => setFareFocused(true)}
-            onBlur={() => setFareFocused(false)}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Fuel Price</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="0.00"
-            placeholderTextColor={fuelFocused ? "#ccc" : "#999"}
-            value={fuel}
-            onChangeText={setFuel}
-            keyboardType="numeric"
-            onFocus={() => setFuelFocused(true)}
-            onBlur={() => setFuelFocused(false)}
-          />
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Update Prices"
-            onPress={handleUpdate}
-            color="#007AFF"
-          />
-        </View>
+        <Text style={styles.infoTitle}>No private fare data yet</Text>
+        <Text style={styles.infoText}>
+          Private transport fare configuration is currently disabled because the
+          private fare dataset is not available yet.
+        </Text>
+        <Text style={styles.infoText}>
+          Public fare management is active and now updates both database tables:
+          public_mode_fares and fare_rules.
+        </Text>
       </View>
     </View>
   );
@@ -62,56 +34,56 @@ export default function AdminPanel() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-    justifyContent: "flex-start",
+    backgroundColor: "#f3f6fb",
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
+  },
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
-    padding: 50,
+    marginBottom: 18,
+    gap: 12,
   },
   header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-    marginTop: 20,
+    fontSize: 26,
+    fontWeight: "700",
+    color: "#111827",
   },
   card: {
+    width: "100%",
+    maxWidth: 620,
     backgroundColor: "#ffffff",
-    borderRadius: 15,
-    padding: 50,
-    width: "30%",
-    // Shadow for iOS
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    // Shadow for Android
-    elevation: 5,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#e5e7eb",
+    padding: 18,
+    alignSelf: "center",
   },
-  inputGroup: {
-    marginBottom: 20,
+  infoTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1f2937",
+    marginBottom: 10,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+  infoText: {
+    fontSize: 14,
+    color: "#4b5563",
+    lineHeight: 20,
     marginBottom: 8,
   },
-  input: {
-    height: 45,
-    borderColor: "#ddd",
+  secondaryButton: {
+    paddingHorizontal: 14,
+    height: 40,
+    borderRadius: 8,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: "#fafafa",
-    fontSize: 16,
+    borderColor: "#cbd5e1",
+    backgroundColor: "#f8fafc",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  buttonContainer: {
-    marginTop: 10,
-    borderRadius: 8,
-    overflow: "hidden",
-    width: "40%",
-    alignSelf: "center",
+  secondaryButtonText: {
+    color: "#1f2937",
+    fontWeight: "600",
   },
 });
