@@ -36,9 +36,7 @@ export type FareRatesResponse = {
   private_settings?: PrivateFareSettings | null;
 };
 
-const BACKEND_TARGET = String(
-  process.env.EXPO_PUBLIC_BACKEND_TARGET || "local",
-)
+const BACKEND_TARGET = String(process.env.EXPO_PUBLIC_BACKEND_TARGET || "local")
   .trim()
   .toLowerCase();
 
