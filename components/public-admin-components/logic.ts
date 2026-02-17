@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
 
 import {
-    FareRuleRow,
-    generatePublicFareRows,
-    getFareRates,
-    PublicFareFormula,
-    PublicFareRow,
-    updatePublicFareTables,
-} from "@/services/fareApi";
+  FareRuleRow,
+  generatePublicFareRows,
+  getFareRates,
+  PublicFareFormula,
+  PublicFareRow,
+  updatePublicFareTables,
+} from "../../services/fareApi";
 
 export type PublicFareRowForm = {
   id: string;
