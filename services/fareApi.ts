@@ -36,13 +36,31 @@ export type FareRatesResponse = {
   private_settings?: PrivateFareSettings | null;
 };
 
-const API_BASE_URL = String(
-  process.env.EXPO_PUBLIC_ADMIN_API_URL ||
+const BACKEND_TARGET = String(
+  process.env.EXPO_PUBLIC_BACKEND_TARGET || "local",
+)
+  .trim()
+  .toLowerCase();
+
+const LOCAL_API_URL = String(
+  process.env.EXPO_PUBLIC_ADMIN_API_URL_LOCAL ||
+    process.env.EXPO_PUBLIC_ADMIN_API_URL ||
     process.env.EXPO_PUBLIC_API_BASE_URL ||
     "http://127.0.0.1:8000",
 )
   .trim()
   .replace(/\/+$/, "");
+
+const DEPLOYED_API_URL = String(
+  process.env.EXPO_PUBLIC_ADMIN_API_URL_DEPLOYED || "",
+)
+  .trim()
+  .replace(/\/+$/, "");
+
+const API_BASE_URL =
+  BACKEND_TARGET === "deployed" && DEPLOYED_API_URL.length > 0
+    ? DEPLOYED_API_URL
+    : LOCAL_API_URL;
 
 const API_KEY = String(process.env.EXPO_PUBLIC_ADMIN_API_KEY || "").trim();
 const API_KEY_HEADER = String(
@@ -50,6 +68,12 @@ const API_KEY_HEADER = String(
 ).trim();
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  if (BACKEND_TARGET === "deployed" && DEPLOYED_API_URL.length === 0) {
+    throw new Error(
+      "EXPO_PUBLIC_BACKEND_TARGET is 'deployed' but EXPO_PUBLIC_ADMIN_API_URL_DEPLOYED is not set.",
+    );
+  }
+
   const headers = new Headers(init?.headers || undefined);
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
