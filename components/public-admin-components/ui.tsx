@@ -7,8 +7,8 @@ import {
   View,
 } from "react-native";
 
+import { styles } from "../admin-styles/public-admin.styles";
 import { PublicAdminViewModel, QUICK_MODE_CONFIG, QUICK_MODES } from "./logic";
-import { styles } from "./styles";
 
 type PublicAdminViewProps = PublicAdminViewModel & {
   onBack: () => void;
@@ -72,11 +72,21 @@ export function PublicAdminView({
 
       {loading ? (
         <View style={styles.centerWrap}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color="#7f8ea7" />
           <Text style={styles.helper}>Loading fare rates...</Text>
         </View>
       ) : (
-        <View style={styles.card}>
+        <ScrollView
+          style={[
+            styles.card,
+            {
+              scrollbarColor: "#4a5261 #171a21",
+              scrollbarWidth: "thin",
+            } as any,
+          ]}
+          contentContainerStyle={styles.cardContent}
+          showsVerticalScrollIndicator
+        >
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           <View style={styles.sectionCard}>
@@ -164,6 +174,7 @@ export function PublicAdminView({
               <Pressable
                 style={[
                   styles.primaryButton,
+                  styles.railGenerateButton,
                   (saving || hasInvalidSelectedQuick) &&
                     styles.primaryButtonDisabled,
                 ]}
@@ -494,6 +505,7 @@ export function PublicAdminView({
               <Pressable
                 style={[
                   styles.primaryButton,
+                  styles.railGenerateButton,
                   (saving || hasInvalidSelectedRailQuick) &&
                     styles.primaryButtonDisabled,
                 ]}
@@ -659,7 +671,7 @@ export function PublicAdminView({
               </Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
       )}
     </View>
   );

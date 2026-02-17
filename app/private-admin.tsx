@@ -1,5 +1,7 @@
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+
+import { styles } from "../components/admin-styles/private-admin.styles";
 
 export default function PrivateAdminScreen() {
   const router = useRouter();
@@ -30,60 +32,3 @@ export default function PrivateAdminScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f3f6fb",
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 20,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 18,
-    gap: 12,
-  },
-  header: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  card: {
-    width: "100%",
-    maxWidth: 620,
-    backgroundColor: "#ffffff",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    padding: 18,
-    alignSelf: "center",
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1f2937",
-    marginBottom: 10,
-  },
-  infoText: {
-    fontSize: 14,
-    color: "#4b5563",
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  secondaryButton: {
-    paddingHorizontal: 14,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
-    backgroundColor: "#f8fafc",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  secondaryButtonText: {
-    color: "#1f2937",
-    fontWeight: "600",
-  },
-});
