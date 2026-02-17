@@ -37,6 +37,14 @@ export const styles = StyleSheet.create({
     borderColor: "#e5e7eb",
     padding: 16,
   },
+  sectionCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    padding: 12,
+    marginBottom: 12,
+  },
   sectionTitle: {
     marginTop: 10,
     marginBottom: 8,

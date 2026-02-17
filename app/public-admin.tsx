@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import {
   PublicAdminView,
   usePublicAdminLogic,
-} from "./public-admin-components";
+} from "../components/public-admin-components";
 
 export default function PublicAdminScreen() {
   const router = useRouter();
