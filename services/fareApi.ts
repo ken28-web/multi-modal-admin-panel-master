@@ -74,7 +74,7 @@ const API_BASE_URL =
 
 const API_KEY = String(process.env.EXPO_PUBLIC_ADMIN_API_KEY || "").trim();
 const API_KEY_HEADER = String(
-  process.env.EXPO_PUBLIC_ADMIN_API_KEY_HEADER || "X-API-Key",
+  process.env.EXPO_PUBLIC_ADMIN_API_KEY_HEADER || "X-Admin-API-Key",
 ).trim();
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {

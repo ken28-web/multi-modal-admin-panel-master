@@ -50,13 +50,13 @@ npm start
 Set these environment variables before running the admin panel:
 
 - `EXPO_PUBLIC_ADMIN_API_KEY` (your backend API key value)
-- `EXPO_PUBLIC_ADMIN_API_KEY_HEADER` (optional, default: `X-API-Key`)
+- `EXPO_PUBLIC_ADMIN_API_KEY_HEADER` (optional, default: `X-Admin-API-Key`)
 
 Example (PowerShell):
 
 ```powershell
 $env:EXPO_PUBLIC_ADMIN_API_KEY = "your_api_key_here"
-$env:EXPO_PUBLIC_ADMIN_API_KEY_HEADER = "X-API-Key"
+$env:EXPO_PUBLIC_ADMIN_API_KEY_HEADER = "X-Admin-API-Key"
 npm start
 ```
 
