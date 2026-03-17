@@ -175,6 +175,9 @@ export const styles = StyleSheet.create({
   previewRowsWrap: {
     maxHeight: 220,
   },
+  tableScrollContent: {
+    paddingBottom: 4,
+  },
   errorText: {
     color: "#e58a9f",
     marginBottom: 10,

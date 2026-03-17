@@ -48,6 +48,19 @@ export type FareRatesResponse = {
   private_settings?: PrivateFareSettings | null;
 };
 
+export type AdminLoginResponse = {
+  access_token: string;
+  token_type: string;
+  expires_in_seconds: number;
+  username: string;
+};
+
+export type AdminSessionResponse = {
+  authenticated: boolean;
+  username?: string | null;
+  expires_at_unix?: number | null;
+};
+
 const BACKEND_TARGET = String(process.env.EXPO_PUBLIC_BACKEND_TARGET || "local")
   .trim()
   .toLowerCase();
@@ -77,7 +90,42 @@ const API_KEY_HEADER = String(
   process.env.EXPO_PUBLIC_ADMIN_API_KEY_HEADER || "X-Admin-API-Key",
 ).trim();
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+const ADMIN_SESSION_STORAGE_KEY = "admin_session_token";
+
+function hasBrowserStorage(): boolean {
+  return typeof window !== "undefined" && !!window.localStorage;
+}
+
+export function getAdminSessionToken(): string {
+  if (!hasBrowserStorage()) return "";
+  return String(
+    window.localStorage.getItem(ADMIN_SESSION_STORAGE_KEY) || "",
+  ).trim();
+}
+
+export function setAdminSessionToken(token: string): void {
+  if (!hasBrowserStorage()) return;
+  window.localStorage.setItem(
+    ADMIN_SESSION_STORAGE_KEY,
+    String(token || "").trim(),
+  );
+}
+
+export function clearAdminSessionToken(): void {
+  if (!hasBrowserStorage()) return;
+  window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+}
+
+export function isAdminAuthenticatedClient(): boolean {
+  // Keep API key fallback for compatibility if login auth is not yet configured.
+  return getAdminSessionToken().length > 0 || API_KEY.length > 0;
+}
+
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  options?: { skipAuth?: boolean },
+): Promise<T> {
   if (BACKEND_TARGET === "deployed" && DEPLOYED_API_URL.length === 0) {
     throw new Error(
       "EXPO_PUBLIC_BACKEND_TARGET is 'deployed' but EXPO_PUBLIC_ADMIN_API_URL_DEPLOYED is not set.",
@@ -88,8 +136,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  if (API_KEY.length > 0) {
-    headers.set(API_KEY_HEADER, API_KEY);
+
+  if (!options?.skipAuth) {
+    const token = getAdminSessionToken();
+    if (token.length > 0) {
+      headers.set("Authorization", `Bearer ${token}`);
+    } else if (API_KEY.length > 0) {
+      headers.set(API_KEY_HEADER, API_KEY);
+    }
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -103,6 +157,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     : await response.text();
 
   if (!response.ok) {
+    if (response.status === 401 && !options?.skipAuth) {
+      clearAdminSessionToken();
+    }
     const detail =
       typeof data === "object" && data && "detail" in data
         ? String((data as { detail: unknown }).detail)
@@ -111,6 +168,29 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return data as T;
+}
+
+export async function loginAdmin(
+  username: string,
+  password: string,
+): Promise<AdminLoginResponse> {
+  const data = await request<AdminLoginResponse>(
+    "/admin/auth/login",
+    {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    },
+    { skipAuth: true },
+  );
+
+  setAdminSessionToken(String(data.access_token || "").trim());
+  return data;
+}
+
+export async function getAdminSession(): Promise<AdminSessionResponse> {
+  return request<AdminSessionResponse>("/admin/auth/session", undefined, {
+    skipAuth: false,
+  });
 }
 
 export async function getFareRates(): Promise<FareRatesResponse> {

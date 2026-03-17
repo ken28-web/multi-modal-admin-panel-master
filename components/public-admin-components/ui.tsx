@@ -5,6 +5,7 @@ import {
     ScrollView,
     Text,
     TextInput,
+    useWindowDimensions,
     View,
 } from "react-native";
 
@@ -78,6 +79,34 @@ export function PublicAdminView({
   onResetToLastSaved,
   onSave,
 }: PublicAdminViewProps) {
+  const { width } = useWindowDimensions();
+  const isCompact = width < 900;
+  const compactHeaderRowStyle = isCompact
+    ? ({ flexWrap: "wrap", alignItems: "flex-start" } as const)
+    : null;
+  const compactHeaderTextStyle = isCompact
+    ? ({ fontSize: 20, lineHeight: 26 } as const)
+    : null;
+  const compactCardStyle = isCompact ? ({ padding: 12 } as const) : null;
+  const compactButtonStyle = isCompact ? ({ width: "100%" } as const) : null;
+  const compactFormulaCellStyle = isCompact
+    ? ({ minWidth: "100%" } as const)
+    : null;
+  const compactActionsRowStyle = isCompact
+    ? ({ flexDirection: "column", alignItems: "stretch" } as const)
+    : null;
+  const compactStickyMetaStyle = isCompact
+    ? ({ flexDirection: "column", alignItems: "flex-start", gap: 6 } as const)
+    : null;
+  const compactStickyActionsStyle = isCompact
+    ? ({ flexDirection: "column" } as const)
+    : null;
+  const compactStepperButtonStyle = isCompact
+    ? ({ width: "100%", minHeight: 40 } as const)
+    : null;
+  const compactTableMinWidth = 640;
+  const compactRailTableMinWidth = 980;
+
   const railUsesVariantSplit =
     selectedRailMode === "LRT1" || selectedRailMode === "LRT2";
   const isPnrMode = selectedRailMode === "PNR";
@@ -114,11 +143,13 @@ export function PublicAdminView({
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
+      <View style={[styles.headerRow, compactHeaderRowStyle]}>
         <Pressable style={styles.secondaryButton} onPress={onBack}>
           <Text style={styles.secondaryButtonText}>Back</Text>
         </Pressable>
-        <Text style={styles.header}>Public Transport Fare Rates</Text>
+        <Text style={[styles.header, compactHeaderTextStyle]}>
+          Public Transport Fare Rates
+        </Text>
       </View>
 
       <View style={styles.stepperRow}>
@@ -131,7 +162,11 @@ export function PublicAdminView({
           return (
             <Pressable
               key={step.key}
-              style={[styles.stepButton, isActive && styles.stepButtonActive]}
+              style={[
+                styles.stepButton,
+                compactStepperButtonStyle,
+                isActive && styles.stepButtonActive,
+              ]}
               onPress={() => setCurrentStep(step.key as any)}
             >
               <Text
@@ -157,6 +192,7 @@ export function PublicAdminView({
           <ScrollView
             style={[
               styles.card,
+              compactCardStyle,
               {
                 scrollbarColor: "#4a5261 #171a21",
                 scrollbarWidth: "thin",
@@ -215,7 +251,13 @@ export function PublicAdminView({
                 </View>
 
                 <View style={styles.formulaGrid}>
-                  <View style={[styles.formulaField, styles.formulaCell]}>
+                  <View
+                    style={[
+                      styles.formulaField,
+                      styles.formulaCell,
+                      compactFormulaCellStyle,
+                    ]}
+                  >
                     <Text style={styles.formulaLabel}>
                       Base Fare (first kilometers)
                     </Text>
@@ -239,7 +281,13 @@ export function PublicAdminView({
                   </View>
 
                   {selectedQuickConfig.showAddOnInput ? (
-                    <View style={[styles.formulaField, styles.formulaCell]}>
+                    <View
+                      style={[
+                        styles.formulaField,
+                        styles.formulaCell,
+                        compactFormulaCellStyle,
+                      ]}
+                    >
                       <Text style={styles.formulaLabel}>
                         Extra Per Km After Included Distance
                       </Text>
@@ -269,7 +317,13 @@ export function PublicAdminView({
                     </View>
                   ) : null}
 
-                  <View style={[styles.formulaField, styles.formulaCell]}>
+                  <View
+                    style={[
+                      styles.formulaField,
+                      styles.formulaCell,
+                      compactFormulaCellStyle,
+                    ]}
+                  >
                     <Text style={styles.formulaLabel}>
                       Senior/PWD Discount Percent
                     </Text>
@@ -326,54 +380,68 @@ export function PublicAdminView({
                         .join(", ")}
                     </Text>
 
-                    <View style={styles.tableHeader}>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Mode
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Distance
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Regular
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Discounted
-                      </Text>
-                    </View>
-
                     <ScrollView
-                      style={styles.previewRowsWrap}
-                      contentContainerStyle={styles.rowsContent}
+                      horizontal
+                      showsHorizontalScrollIndicator
+                      contentContainerStyle={styles.tableScrollContent}
                     >
-                      {generatedPreviewRows.map((row) => (
-                        <View key={row.id} style={styles.row}>
-                          <TextInput
-                            style={[styles.input, styles.modeCol]}
-                            value={row.mode}
-                            editable={false}
-                          />
-                          <TextInput
-                            style={[styles.input, styles.smallCol]}
-                            value={row.distance_km}
-                            editable={false}
-                          />
-                          <TextInput
-                            style={[styles.input, styles.smallCol]}
-                            value={row.regular}
-                            editable={false}
-                          />
-                          <TextInput
-                            style={[styles.input, styles.smallCol]}
-                            value={row.discounted}
-                            editable={false}
-                          />
+                      <View
+                        style={
+                          isCompact
+                            ? { minWidth: compactTableMinWidth }
+                            : undefined
+                        }
+                      >
+                        <View style={styles.tableHeader}>
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Mode
+                          </Text>
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Distance
+                          </Text>
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Regular
+                          </Text>
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Discounted
+                          </Text>
                         </View>
-                      ))}
+
+                        <ScrollView
+                          style={styles.previewRowsWrap}
+                          contentContainerStyle={styles.rowsContent}
+                        >
+                          {generatedPreviewRows.map((row) => (
+                            <View key={row.id} style={styles.row}>
+                              <TextInput
+                                style={[styles.input, styles.modeCol]}
+                                value={row.mode}
+                                editable={false}
+                              />
+                              <TextInput
+                                style={[styles.input, styles.smallCol]}
+                                value={row.distance_km}
+                                editable={false}
+                              />
+                              <TextInput
+                                style={[styles.input, styles.smallCol]}
+                                value={row.regular}
+                                editable={false}
+                              />
+                              <TextInput
+                                style={[styles.input, styles.smallCol]}
+                                value={row.discounted}
+                                editable={false}
+                              />
+                            </View>
+                          ))}
+                        </ScrollView>
+                      </View>
                     </ScrollView>
 
-                    <View style={styles.actionsRow}>
+                    <View style={[styles.actionsRow, compactActionsRowStyle]}>
                       <Pressable
-                        style={styles.secondaryButton}
+                        style={[styles.secondaryButton, compactButtonStyle]}
                         onPress={onClearGeneratedPreview}
                       >
                         <Text style={styles.secondaryButtonText}>
@@ -381,7 +449,7 @@ export function PublicAdminView({
                         </Text>
                       </Pressable>
                       <Pressable
-                        style={styles.primaryButton}
+                        style={[styles.primaryButton, compactButtonStyle]}
                         onPress={onApplyGeneratedPreview}
                       >
                         <Text style={styles.primaryButtonText}>
@@ -459,7 +527,13 @@ export function PublicAdminView({
                 <View style={styles.formulaGrid}>
                   {isPnrMode ? (
                     <>
-                      <View style={[styles.formulaField, styles.formulaCell]}>
+                      <View
+                        style={[
+                          styles.formulaField,
+                          styles.formulaCell,
+                          compactFormulaCellStyle,
+                        ]}
+                      >
                         <Text style={styles.formulaLabel}>Base Fare</Text>
                         <TextInput
                           style={[
@@ -482,7 +556,13 @@ export function PublicAdminView({
                         ) : null}
                       </View>
 
-                      <View style={[styles.formulaField, styles.formulaCell]}>
+                      <View
+                        style={[
+                          styles.formulaField,
+                          styles.formulaCell,
+                          compactFormulaCellStyle,
+                        ]}
+                      >
                         <Text style={styles.formulaLabel}>
                           Add-on Per 7 Km Zone
                         </Text>
@@ -509,7 +589,13 @@ export function PublicAdminView({
                     </>
                   ) : (
                     <>
-                      <View style={[styles.formulaField, styles.formulaCell]}>
+                      <View
+                        style={[
+                          styles.formulaField,
+                          styles.formulaCell,
+                          compactFormulaCellStyle,
+                        ]}
+                      >
                         <Text style={styles.formulaLabel}>Boarding Fee</Text>
                         <TextInput
                           style={[
@@ -532,7 +618,13 @@ export function PublicAdminView({
                         ) : null}
                       </View>
 
-                      <View style={[styles.formulaField, styles.formulaCell]}>
+                      <View
+                        style={[
+                          styles.formulaField,
+                          styles.formulaCell,
+                          compactFormulaCellStyle,
+                        ]}
+                      >
                         <Text style={styles.formulaLabel}>Distance Rate</Text>
                         <TextInput
                           style={[
@@ -555,7 +647,13 @@ export function PublicAdminView({
                         ) : null}
                       </View>
 
-                      <View style={[styles.formulaField, styles.formulaCell]}>
+                      <View
+                        style={[
+                          styles.formulaField,
+                          styles.formulaCell,
+                          compactFormulaCellStyle,
+                        ]}
+                      >
                         <Text style={styles.formulaLabel}>
                           {railUsesVariantSplit
                             ? "Min Single Journey Fare"
@@ -612,7 +710,11 @@ export function PublicAdminView({
                       {railUsesVariantSplit ? (
                         <>
                           <View
-                            style={[styles.formulaField, styles.formulaCell]}
+                            style={[
+                              styles.formulaField,
+                              styles.formulaCell,
+                              compactFormulaCellStyle,
+                            ]}
                           >
                             <Text style={styles.formulaLabel}>
                               Min Stored Value Card Fare
@@ -639,7 +741,11 @@ export function PublicAdminView({
                           </View>
 
                           <View
-                            style={[styles.formulaField, styles.formulaCell]}
+                            style={[
+                              styles.formulaField,
+                              styles.formulaCell,
+                              compactFormulaCellStyle,
+                            ]}
                           >
                             <Text style={styles.formulaLabel}>
                               Max Stored Value Card Fare
@@ -694,58 +800,84 @@ export function PublicAdminView({
                       Mode: {selectedRailMode}
                     </Text>
 
-                    <View style={styles.tableHeaderLarge}>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Transport
-                      </Text>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Service
-                      </Text>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Origin
-                      </Text>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Destination
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Fare
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Ticket Type
-                      </Text>
-                    </View>
-
                     <ScrollView
-                      style={styles.previewRowsWrap}
-                      contentContainerStyle={styles.rowsContent}
+                      horizontal
+                      showsHorizontalScrollIndicator
+                      contentContainerStyle={styles.tableScrollContent}
                     >
-                      {generatedRailPreviewRows.map((row) => (
-                        <View key={row.id} style={styles.row}>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.transport_mode}
+                      <View
+                        style={
+                          isCompact
+                            ? { minWidth: compactRailTableMinWidth }
+                            : undefined
+                        }
+                      >
+                        <View style={styles.tableHeaderLarge}>
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Transport
                           </Text>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.service_type}
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Service
                           </Text>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.origin}
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Origin
                           </Text>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.destination}
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Destination
                           </Text>
-                          <Text style={[styles.previewCell, styles.smallCol]}>
-                            {row.fare}
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Fare
                           </Text>
-                          <Text style={[styles.previewCell, styles.smallCol]}>
-                            {formatTicketTypeLabel(row.variant_type)}
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Ticket Type
                           </Text>
                         </View>
-                      ))}
+
+                        <ScrollView
+                          style={styles.previewRowsWrap}
+                          contentContainerStyle={styles.rowsContent}
+                        >
+                          {generatedRailPreviewRows.map((row) => (
+                            <View key={row.id} style={styles.row}>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.transport_mode}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.service_type}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.origin}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.destination}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.smallCol]}
+                              >
+                                {row.fare}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.smallCol]}
+                              >
+                                {formatTicketTypeLabel(row.variant_type)}
+                              </Text>
+                            </View>
+                          ))}
+                        </ScrollView>
+                      </View>
                     </ScrollView>
 
-                    <View style={styles.actionsRow}>
+                    <View style={[styles.actionsRow, compactActionsRowStyle]}>
                       <Pressable
-                        style={styles.secondaryButton}
+                        style={[styles.secondaryButton, compactButtonStyle]}
                         onPress={onClearGeneratedRailPreview}
                       >
                         <Text style={styles.secondaryButtonText}>
@@ -753,7 +885,7 @@ export function PublicAdminView({
                         </Text>
                       </Pressable>
                       <Pressable
-                        style={styles.primaryButton}
+                        style={[styles.primaryButton, compactButtonStyle]}
                         onPress={onApplyGeneratedRailPreview}
                       >
                         <Text style={styles.primaryButtonText}>
@@ -775,9 +907,9 @@ export function PublicAdminView({
                   Use the previews below to verify generated rows before saving.
                 </Text>
 
-                <View style={styles.actionsRow}>
+                <View style={[styles.actionsRow, compactActionsRowStyle]}>
                   <Pressable
-                    style={styles.secondaryButton}
+                    style={[styles.secondaryButton, compactButtonStyle]}
                     onPress={onTogglePublicTablePreview}
                   >
                     <Text style={styles.secondaryButtonText}>
@@ -801,48 +933,70 @@ export function PublicAdminView({
                       placeholder="Search by distance or fare"
                       placeholderTextColor="#808a9c"
                     />
-                    <View style={styles.tableHeader}>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Mode
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Distance
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Regular
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Discounted
-                      </Text>
-                    </View>
-
                     <ScrollView
-                      style={styles.previewRowsWrap}
-                      contentContainerStyle={styles.rowsContent}
+                      horizontal
+                      showsHorizontalScrollIndicator
+                      contentContainerStyle={styles.tableScrollContent}
                     >
-                      {selectedQuickModeRows.map((row) => (
-                        <View key={row.id} style={styles.row}>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.mode}
+                      <View
+                        style={
+                          isCompact
+                            ? { minWidth: compactTableMinWidth }
+                            : undefined
+                        }
+                      >
+                        <View style={styles.tableHeader}>
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Mode
                           </Text>
-                          <Text style={[styles.previewCell, styles.smallCol]}>
-                            {row.distance_km}
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Distance
                           </Text>
-                          <Text style={[styles.previewCell, styles.smallCol]}>
-                            {row.regular}
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Regular
                           </Text>
-                          <Text style={[styles.previewCell, styles.smallCol]}>
-                            {row.discounted}
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Discounted
                           </Text>
                         </View>
-                      ))}
+
+                        <ScrollView
+                          style={styles.previewRowsWrap}
+                          contentContainerStyle={styles.rowsContent}
+                        >
+                          {selectedQuickModeRows.map((row) => (
+                            <View key={row.id} style={styles.row}>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.mode}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.smallCol]}
+                              >
+                                {row.distance_km}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.smallCol]}
+                              >
+                                {row.regular}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.smallCol]}
+                              >
+                                {row.discounted}
+                              </Text>
+                            </View>
+                          ))}
+                        </ScrollView>
+                      </View>
                     </ScrollView>
                   </View>
                 ) : null}
 
-                <View style={styles.actionsRow}>
+                <View style={[styles.actionsRow, compactActionsRowStyle]}>
                   <Pressable
-                    style={styles.secondaryButton}
+                    style={[styles.secondaryButton, compactButtonStyle]}
                     onPress={onToggleFareRulesPreview}
                   >
                     <Text style={styles.secondaryButtonText}>
@@ -865,53 +1019,79 @@ export function PublicAdminView({
                       placeholder="Search by station, service, or ticket type"
                       placeholderTextColor="#808a9c"
                     />
-                    <View style={styles.tableHeaderLarge}>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Transport
-                      </Text>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Service
-                      </Text>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Origin
-                      </Text>
-                      <Text style={[styles.colHeader, styles.modeCol]}>
-                        Destination
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Fare
-                      </Text>
-                      <Text style={[styles.colHeader, styles.smallCol]}>
-                        Ticket Type
-                      </Text>
-                    </View>
-
                     <ScrollView
-                      style={styles.previewRowsWrap}
-                      contentContainerStyle={styles.rowsContent}
+                      horizontal
+                      showsHorizontalScrollIndicator
+                      contentContainerStyle={styles.tableScrollContent}
                     >
-                      {selectedModeFareRuleRows.map((row) => (
-                        <View key={row.id} style={styles.row}>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.transport_mode}
+                      <View
+                        style={
+                          isCompact
+                            ? { minWidth: compactRailTableMinWidth }
+                            : undefined
+                        }
+                      >
+                        <View style={styles.tableHeaderLarge}>
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Transport
                           </Text>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.service_type}
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Service
                           </Text>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.origin}
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Origin
                           </Text>
-                          <Text style={[styles.previewCell, styles.modeCol]}>
-                            {row.destination}
+                          <Text style={[styles.colHeader, styles.modeCol]}>
+                            Destination
                           </Text>
-                          <Text style={[styles.previewCell, styles.smallCol]}>
-                            {row.fare}
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Fare
                           </Text>
-                          <Text style={[styles.previewCell, styles.smallCol]}>
-                            {formatTicketTypeLabel(row.variant_type)}
+                          <Text style={[styles.colHeader, styles.smallCol]}>
+                            Ticket Type
                           </Text>
                         </View>
-                      ))}
+
+                        <ScrollView
+                          style={styles.previewRowsWrap}
+                          contentContainerStyle={styles.rowsContent}
+                        >
+                          {selectedModeFareRuleRows.map((row) => (
+                            <View key={row.id} style={styles.row}>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.transport_mode}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.service_type}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.origin}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.modeCol]}
+                              >
+                                {row.destination}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.smallCol]}
+                              >
+                                {row.fare}
+                              </Text>
+                              <Text
+                                style={[styles.previewCell, styles.smallCol]}
+                              >
+                                {formatTicketTypeLabel(row.variant_type)}
+                              </Text>
+                            </View>
+                          ))}
+                        </ScrollView>
+                      </View>
                     </ScrollView>
                   </View>
                 ) : null}
@@ -920,7 +1100,7 @@ export function PublicAdminView({
           </ScrollView>
 
           <View style={styles.stickyBar}>
-            <View style={styles.stickyMetaRow}>
+            <View style={[styles.stickyMetaRow, compactStickyMetaStyle]}>
               <Text style={styles.stickyMuted}>
                 {lastSavedAt ? `Last saved: ${lastSavedAt}` : "Not saved yet"}
               </Text>
@@ -931,9 +1111,9 @@ export function PublicAdminView({
               )}
             </View>
 
-            <View style={styles.stickyActions}>
+            <View style={[styles.stickyActions, compactStickyActionsStyle]}>
               <Pressable
-                style={styles.secondaryButton}
+                style={[styles.secondaryButton, compactButtonStyle]}
                 onPress={onResetToLastSaved}
                 disabled={!hasUnsavedChanges || saving}
               >
@@ -944,6 +1124,7 @@ export function PublicAdminView({
               <Pressable
                 style={[
                   styles.primaryButton,
+                  compactButtonStyle,
                   isSaveDisabled && styles.primaryButtonDisabled,
                 ]}
                 onPress={onSave}

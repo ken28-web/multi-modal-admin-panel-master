@@ -6,12 +6,16 @@ import {
     ScrollView,
     Text,
     TextInput,
+    useWindowDimensions,
     View,
 } from "react-native";
 
 import {
+    clearAdminSessionToken,
+    getAdminSession,
     getPrivateFuelPriceOptions,
     getPrivateVehicleFuelSettings,
+    isAdminAuthenticatedClient,
     type PrivateFuelPriceOption,
     type PrivateVehicleFuelSetting,
     updatePrivateFuelPriceOptions,
@@ -45,6 +49,25 @@ function isPositiveNumber(value: string): boolean {
 }
 
 export default function PrivateAdminScreen() {
+  const { width } = useWindowDimensions();
+  const isCompact = width < 900;
+  const compactHeaderRowStyle = isCompact
+    ? ({ flexWrap: "wrap", alignItems: "flex-start" } as const)
+    : null;
+  const compactHeaderTextStyle = isCompact
+    ? ({ fontSize: 20, lineHeight: 26 } as const)
+    : null;
+  const compactStepperButtonStyle = isCompact
+    ? ({ width: "100%", minHeight: 40 } as const)
+    : null;
+  const compactActionsStyle = isCompact
+    ? ({ flexDirection: "column" } as const)
+    : null;
+  const compactButtonStyle = isCompact ? ({ width: "100%" } as const) : null;
+  const compactStickyMetaStyle = isCompact
+    ? ({ flexDirection: "column", alignItems: "flex-start", gap: 6 } as const)
+    : null;
+
   const router = useRouter();
   const [rows, setRows] = useState<EditablePrivateVehicleFuelSetting[]>([]);
   const [initialRows, setInitialRows] = useState<
@@ -64,6 +87,28 @@ export default function PrivateAdminScreen() {
   const [step, setStep] = useState<PrivateStep>("fuel-prices");
   const [vehicleSearch, setVehicleSearch] = useState("");
   const [fuelSearch, setFuelSearch] = useState("");
+
+  useEffect(() => {
+    const run = async () => {
+      if (!isAdminAuthenticatedClient()) {
+        router.replace("/");
+        return;
+      }
+
+      try {
+        const session = await getAdminSession();
+        if (!session.authenticated) {
+          clearAdminSessionToken();
+          router.replace("/");
+        }
+      } catch {
+        clearAdminSessionToken();
+        router.replace("/");
+      }
+    };
+
+    void run();
+  }, [router]);
 
   const loadRows = async () => {
     setError(null);
@@ -273,11 +318,13 @@ export default function PrivateAdminScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
+      <View style={[styles.headerRow, compactHeaderRowStyle]}>
         <Pressable style={styles.secondaryButton} onPress={handleBack}>
           <Text style={styles.secondaryButtonText}>Back</Text>
         </Pressable>
-        <Text style={styles.header}>Private Transport</Text>
+        <Text style={[styles.header, compactHeaderTextStyle]}>
+          Private Transport
+        </Text>
       </View>
 
       <View style={styles.stepperRow}>
@@ -290,7 +337,11 @@ export default function PrivateAdminScreen() {
           return (
             <Pressable
               key={item.key}
-              style={[styles.stepButton, active && styles.stepButtonActive]}
+              style={[
+                styles.stepButton,
+                compactStepperButtonStyle,
+                active && styles.stepButtonActive,
+              ]}
               onPress={() => setStep(item.key as PrivateStep)}
             >
               <Text
@@ -441,7 +492,7 @@ export default function PrivateAdminScreen() {
       </ScrollView>
 
       <View style={styles.stickyBar}>
-        <View style={styles.stickyMetaRow}>
+        <View style={[styles.stickyMetaRow, compactStickyMetaStyle]}>
           <Text style={styles.stickyMuted}>
             {lastSavedAt ? `Last saved: ${lastSavedAt}` : "Not saved yet"}
           </Text>
@@ -451,9 +502,9 @@ export default function PrivateAdminScreen() {
             <Text style={styles.stickyMuted}>All changes saved</Text>
           )}
         </View>
-        <View style={styles.actions}>
+        <View style={[styles.actions, compactActionsStyle]}>
           <Pressable
-            style={styles.secondaryButton}
+            style={[styles.secondaryButton, compactButtonStyle]}
             onPress={handleReset}
             disabled={!hasChanges || isLoading || isSaving}
           >
@@ -462,6 +513,7 @@ export default function PrivateAdminScreen() {
           <Pressable
             style={[
               styles.primaryButton,
+              compactButtonStyle,
               (!hasChanges ||
                 hasInvalidInput ||
                 hasInvalidFuelOptions ||

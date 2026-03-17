@@ -36,7 +36,6 @@ jobs:
           EXPO_PUBLIC_BACKEND_TARGET: deployed
           EXPO_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
           EXPO_PUBLIC_ADMIN_API_URL_DEPLOYED: ${{ secrets.EXPO_PUBLIC_ADMIN_API_URL_DEPLOYED }}
-          EXPO_PUBLIC_ADMIN_API_KEY: ${{ secrets.EXPO_PUBLIC_ADMIN_API_KEY }}
           EXPO_PUBLIC_ADMIN_API_KEY_HEADER: X-Admin-API-Key
         run: npm run build:web
 

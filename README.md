@@ -45,20 +45,19 @@ $env:EXPO_PUBLIC_ADMIN_API_URL_LOCAL = "http://127.0.0.1:8000"
 npm start
 ```
 
-## Configure API Key (if backend requires auth)
+## Admin Login (Phase 3)
 
-Set these environment variables before running the admin panel:
+This panel now uses backend login with expiring session tokens.
 
-- `EXPO_PUBLIC_ADMIN_API_KEY` (your backend API key value)
-- `EXPO_PUBLIC_ADMIN_API_KEY_HEADER` (optional, default: `X-Admin-API-Key`)
+Configure these backend variables:
 
-Example (PowerShell):
+- `ADMIN_AUTH_ENABLED=true`
+- `ADMIN_USERNAME=<admin username>`
+- `ADMIN_PASSWORD=<admin password>`
+- `ADMIN_SESSION_SECRET=<long random secret>`
+- `ADMIN_SESSION_TTL_MINUTES=480` (or your preferred duration)
 
-```powershell
-$env:EXPO_PUBLIC_ADMIN_API_KEY = "your_api_key_here"
-$env:EXPO_PUBLIC_ADMIN_API_KEY_HEADER = "X-Admin-API-Key"
-npm start
-```
+The frontend no longer requires exposing a long-lived admin key for normal use.
 
 ## Run (web only)
 
@@ -80,7 +79,6 @@ You can deploy this admin panel as a normal website so owners can open it direct
 3. In GitHub, open Settings > Secrets and variables > Actions, then add:
 
 - `EXPO_PUBLIC_ADMIN_API_URL_DEPLOYED` = your deployed backend URL
-- `EXPO_PUBLIC_ADMIN_API_KEY` = current admin key
 
 4. Push to `main` or run the `Deploy Admin Panel Web` workflow manually.
 

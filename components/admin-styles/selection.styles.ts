@@ -37,4 +37,18 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "800",
   },
+  signOutBtn: {
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: "#5e6674",
+    borderRadius: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    backgroundColor: "#1f2430",
+  },
+  signOutText: {
+    color: "#d5dbe6",
+    fontWeight: "700",
+    fontSize: 14,
+  },
 });
