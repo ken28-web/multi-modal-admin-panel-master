@@ -10,13 +10,14 @@ export default function Login() {
       <View style={styles.card}>
         <Text style={styles.title}>Transport Fare Admin Panel</Text>
         <Text style={styles.subtitle}>
-          Manage public and private fare rates from this web dashboard.
+          Manage and review fare settings with guided steps, previews, and safe
+          save actions.
         </Text>
         <TouchableOpacity
           style={styles.button}
           onPress={() => router.push("/selection")}
         >
-          <Text style={styles.buttonText}>Open Dashboard</Text>
+          <Text style={styles.buttonText}>Start Fare Management</Text>
         </TouchableOpacity>
       </View>
     </View>

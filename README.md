@@ -68,3 +68,37 @@ npm start
 ```
 
 `npm start` launches Expo in web mode (`expo start --web`).
+
+## Open Without VS Code (Hosted Website)
+
+You can deploy this admin panel as a normal website so owners can open it directly from a URL.
+
+### One-time setup
+
+1. Push this project to GitHub.
+2. In GitHub, open Settings > Pages and set Source to GitHub Actions.
+3. In GitHub, open Settings > Secrets and variables > Actions, then add:
+
+- `EXPO_PUBLIC_ADMIN_API_URL_DEPLOYED` = your deployed backend URL
+- `EXPO_PUBLIC_ADMIN_API_KEY` = current admin key
+
+4. Push to `main` or run the `Deploy Admin Panel Web` workflow manually.
+
+After deployment, GitHub Pages gives a URL. Open that URL in any browser, no VS Code needed.
+
+### Files used for deployment
+
+- Workflow: `.github/workflows/deploy-admin-web.yml`
+- Build command: `npm run build:web`
+- Output folder: `dist`
+
+## Local production preview (optional)
+
+If you want to test the deploy build locally:
+
+```bash
+npm run build:web
+npm run preview:web
+```
+
+Then open `http://localhost:4173`.

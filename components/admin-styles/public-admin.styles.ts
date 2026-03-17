@@ -21,6 +21,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#2b303a",
     padding: 16,
+    marginBottom: 12,
   },
   cardContent: {
     paddingBottom: 14,
@@ -34,11 +35,39 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    marginTop: 10,
+    marginTop: 4,
     marginBottom: 8,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "700",
     color: "#d4d9e2",
+  },
+  stepperRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 10,
+  },
+  stepButton: {
+    paddingHorizontal: 12,
+    height: 36,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#3a4250",
+    backgroundColor: "#222833",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepButtonActive: {
+    borderColor: "#7da2d2",
+    backgroundColor: "#2b3a4f",
+  },
+  stepButtonText: {
+    color: "#c6cfde",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  stepButtonTextActive: {
+    color: "#edf4ff",
   },
   modePickerRow: {
     flexDirection: "row",
@@ -80,8 +109,8 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   formulaLabel: {
-    fontSize: 12,
-    color: "#adb3bf",
+    fontSize: 13,
+    color: "#c6cfde",
     fontWeight: "600",
   },
   formulaWide: {
@@ -107,9 +136,9 @@ export const styles = StyleSheet.create({
     marginBottom: 2,
   },
   instructionText: {
-    fontSize: 12,
-    color: "#aab1bd",
-    lineHeight: 17,
+    fontSize: 13,
+    color: "#bcc6d6",
+    lineHeight: 18,
   },
   exampleText: {
     marginTop: 4,
@@ -132,10 +161,16 @@ export const styles = StyleSheet.create({
     color: "#d3d9e4",
   },
   previewHint: {
-    fontSize: 12,
-    color: "#9ea6b4",
+    fontSize: 13,
+    color: "#b5bece",
     marginTop: 2,
     marginBottom: 8,
+  },
+  helperBlock: {
+    color: "#b8c2d3",
+    fontSize: 13,
+    marginBottom: 10,
+    lineHeight: 18,
   },
   previewRowsWrap: {
     maxHeight: 220,
@@ -192,6 +227,24 @@ export const styles = StyleSheet.create({
     color: "#d5dbe6",
     paddingHorizontal: 10,
   },
+  inputError: {
+    borderColor: "#d96f89",
+  },
+  fieldErrorText: {
+    color: "#f0a5b6",
+    fontSize: 12,
+    marginTop: -2,
+  },
+  searchInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#3b4452",
+    borderRadius: 8,
+    backgroundColor: "#131820",
+    color: "#d5dbe6",
+    paddingHorizontal: 10,
+    marginBottom: 8,
+  },
   previewCell: {
     minHeight: 34,
     borderWidth: 1,
@@ -240,6 +293,33 @@ export const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: "#f1f4f8",
+    fontWeight: "700",
+  },
+  stickyBar: {
+    borderWidth: 1,
+    borderColor: "#303642",
+    borderRadius: 12,
+    backgroundColor: "#1b1f27",
+    padding: 12,
+    gap: 8,
+  },
+  stickyMetaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  stickyActions: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+  },
+  stickyMuted: {
+    color: "#aeb7c6",
+    fontSize: 12,
+  },
+  stickyWarning: {
+    color: "#f3c27b",
+    fontSize: 12,
     fontWeight: "700",
   },
 });

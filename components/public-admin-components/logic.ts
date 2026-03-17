@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
 
 import {
-  FareRuleRow,
-  generatePublicFareRows,
-  getFareRates,
-  PublicFareFormula,
-  PublicFareRow,
-  updatePublicFareTables,
+    FareRuleRow,
+    generatePublicFareRows,
+    getFareRates,
+    PublicFareFormula,
+    PublicFareRow,
+    updatePublicFareTables,
 } from "../../services/fareApi";
 
 export type PublicFareRowForm = {
@@ -46,6 +46,8 @@ export type RailQuickForm = {
   max_sv_fare: string;
 };
 
+export type PublicAdminStep = "puv" | "rail" | "review";
+
 export type QuickModeConfig = {
   mode: QuickMode;
   title: string;
@@ -71,9 +73,9 @@ function railModeUsesVariantSplit(mode: RailMode): boolean {
 export const QUICK_MODE_CONFIG: Record<QuickMode, QuickModeConfig> = {
   PUJ: {
     mode: "PUJ",
-    title: "PUJ Quick Adjust",
-    generateLabel: "Generate PUJ Preview",
-    previewLabel: "PUJ",
+    title: "Jeepney Quick Adjust",
+    generateLabel: "Generate Jeepney Preview",
+    previewLabel: "Jeepney",
     includedDistanceKm: 4,
     showAddOnInput: true,
     addOnPlaceholder: "1.8",
@@ -84,9 +86,9 @@ export const QUICK_MODE_CONFIG: Record<QuickMode, QuickModeConfig> = {
   },
   PUB_ORDINARY: {
     mode: "PUB_ORDINARY",
-    title: "PUB Ordinary Quick Adjust",
-    generateLabel: "Generate PUB_ORDINARY Preview",
-    previewLabel: "PUB_ORDINARY",
+    title: "Ordinary Bus Quick Adjust",
+    generateLabel: "Generate Ordinary Bus Preview",
+    previewLabel: "Ordinary Bus",
     includedDistanceKm: 5,
     showAddOnInput: true,
     addOnPlaceholder: "2.25",
@@ -97,9 +99,9 @@ export const QUICK_MODE_CONFIG: Record<QuickMode, QuickModeConfig> = {
   },
   PUB_AIRCON: {
     mode: "PUB_AIRCON",
-    title: "PUB Air-Conditioned Quick Adjust",
-    generateLabel: "Generate PUB_AIRCON Preview",
-    previewLabel: "PUB_AIRCON",
+    title: "Aircon Bus Quick Adjust",
+    generateLabel: "Generate Aircon Bus Preview",
+    previewLabel: "Aircon Bus",
     includedDistanceKm: 5,
     showAddOnInput: true,
     addOnPlaceholder: "2.65",
@@ -337,13 +339,17 @@ export type PublicAdminViewModel = {
   loading: boolean;
   saving: boolean;
   error: string | null;
+  lastSavedAt: string | null;
+  currentStep: PublicAdminStep;
   selectedQuickMode: QuickMode;
   selectedQuickConfig: QuickModeConfig;
   selectedQuickForm: QuickForm;
   hasInvalidSelectedQuick: boolean;
+  quickFormErrors: Partial<Record<keyof QuickForm, string>>;
   selectedRailMode: RailMode;
   selectedRailForm: RailQuickForm;
   hasInvalidSelectedRailQuick: boolean;
+  railFormErrors: Partial<Record<keyof RailQuickForm, string>>;
   hasGeneratedPreview: boolean;
   generatedPreviewRows: PublicFareRowForm[];
   generatedPreviewModes: string[];
@@ -354,6 +360,8 @@ export type PublicAdminViewModel = {
   showPublicTablePreview: boolean;
   showFareRulesPreview: boolean;
   isSaveDisabled: boolean;
+  hasUnsavedChanges: boolean;
+  setCurrentStep: (step: PublicAdminStep) => void;
   setSelectedQuickMode: (mode: QuickMode) => void;
   setSelectedRailMode: (mode: RailMode) => void;
   updateQuickForm: (
@@ -370,6 +378,7 @@ export type PublicAdminViewModel = {
   onApplyGeneratedRailPreview: () => void;
   onTogglePublicTablePreview: () => void;
   onToggleFareRulesPreview: () => void;
+  onResetToLastSaved: () => void;
   onSave: () => Promise<void>;
 };
 
@@ -377,6 +386,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [rows, setRows] = useState<PublicFareRowForm[]>([]);
+  const [initialRows, setInitialRows] = useState<PublicFareRowForm[]>([]);
   const [generatedPreviewRows, setGeneratedPreviewRows] = useState<
     PublicFareRowForm[]
   >([]);
@@ -384,8 +394,13 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     [],
   );
   const [fareRuleRows, setFareRuleRows] = useState<FareRuleRowForm[]>([]);
+  const [initialFareRuleRows, setInitialFareRuleRows] = useState<
+    FareRuleRowForm[]
+  >([]);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [showPublicTablePreview, setShowPublicTablePreview] = useState(false);
   const [showFareRulesPreview, setShowFareRulesPreview] = useState(false);
+  const [currentStep, setCurrentStep] = useState<PublicAdminStep>("puv");
   const [selectedQuickMode, setSelectedQuickMode] = useState<QuickMode>("PUJ");
   const [selectedRailMode, setSelectedRailMode] = useState<RailMode>("LRT1");
   const [quickForms, setQuickForms] = useState<Record<QuickMode, QuickForm>>({
@@ -504,6 +519,32 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     return !Number.isFinite(addOn) || addOn < 0;
   }, [selectedQuickConfig.showAddOnInput, selectedQuickForm]);
 
+  const quickFormErrors = useMemo(() => {
+    const errors: Partial<Record<keyof QuickForm, string>> = {};
+    const base = Number(selectedQuickForm.base_fare);
+    const addOn = Number(selectedQuickForm.add_on_rate);
+    const discountRate = Number(selectedQuickForm.discount_rate);
+
+    if (!Number.isFinite(base) || base < 0) {
+      errors.base_fare = "Base fare must be 0 or greater.";
+    }
+    if (
+      selectedQuickConfig.showAddOnInput &&
+      (!Number.isFinite(addOn) || addOn < 0)
+    ) {
+      errors.add_on_rate = "Extra per km must be 0 or greater.";
+    }
+    if (
+      !Number.isFinite(discountRate) ||
+      discountRate < 0 ||
+      discountRate > 100
+    ) {
+      errors.discount_rate = "Discount must be between 0 and 100.";
+    }
+
+    return errors;
+  }, [selectedQuickConfig.showAddOnInput, selectedQuickForm]);
+
   const hasInvalidSelectedRailQuick = useMemo(() => {
     if (selectedRailMode === "PNR") {
       const baseFare = Number(selectedRailForm.boarding_fee);
@@ -543,6 +584,58 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     );
   }, [selectedRailForm, selectedRailMode]);
 
+  const railFormErrors = useMemo(() => {
+    const errors: Partial<Record<keyof RailQuickForm, string>> = {};
+    if (selectedRailMode === "PNR") {
+      const baseFare = Number(selectedRailForm.boarding_fee);
+      const addOnPerZone = Number(selectedRailForm.distance_rate);
+      if (!Number.isFinite(baseFare) || baseFare < 0) {
+        errors.boarding_fee = "Base fare must be 0 or greater.";
+      }
+      if (!Number.isFinite(addOnPerZone) || addOnPerZone < 0) {
+        errors.distance_rate = "Add-on per 7 km must be 0 or greater.";
+      }
+      return errors;
+    }
+
+    const usesVariantSplit = railModeUsesVariantSplit(selectedRailMode);
+    const boardingFee = Number(selectedRailForm.boarding_fee);
+    const distanceRate = Number(selectedRailForm.distance_rate);
+    const minSjFare = Number(selectedRailForm.min_sj_fare);
+    const maxSjFare = Number(selectedRailForm.max_sj_fare);
+    const minSvFare = Number(selectedRailForm.min_sv_fare);
+    const maxSvFare = Number(selectedRailForm.max_sv_fare);
+
+    if (!Number.isFinite(boardingFee) || boardingFee < 0) {
+      errors.boarding_fee = "Boarding fee must be 0 or greater.";
+    }
+    if (!Number.isFinite(distanceRate) || distanceRate < 0) {
+      errors.distance_rate = "Distance rate must be 0 or greater.";
+    }
+    if (!Number.isFinite(minSjFare) || minSjFare < 0) {
+      errors.min_sj_fare = "Minimum fare must be 0 or greater.";
+    } else if (!Number.isFinite(maxSjFare) || maxSjFare < minSjFare) {
+      errors.max_sj_fare = "Maximum fare must be at least minimum fare.";
+    }
+
+    if (usesVariantSplit) {
+      if (!Number.isFinite(minSvFare) || minSvFare < 0) {
+        errors.min_sv_fare = "Minimum fare must be 0 or greater.";
+      } else if (!Number.isFinite(maxSvFare) || maxSvFare < minSvFare) {
+        errors.max_sv_fare = "Maximum fare must be at least minimum fare.";
+      }
+    }
+
+    return errors;
+  }, [selectedRailForm, selectedRailMode]);
+
+  const hasUnsavedChanges = useMemo(
+    () =>
+      JSON.stringify(rows) !== JSON.stringify(initialRows) ||
+      JSON.stringify(fareRuleRows) !== JSON.stringify(initialFareRuleRows),
+    [fareRuleRows, initialFareRuleRows, initialRows, rows],
+  );
+
   const isSaveDisabled =
     saving ||
     hasInvalidRows ||
@@ -555,8 +648,12 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
       try {
         setLoading(true);
         const data = await getFareRates();
-        setRows(toFormRows(data.public || []));
-        setFareRuleRows(toFareRuleFormRows(data.fare_rules || []));
+        const loadedRows = toFormRows(data.public || []);
+        const loadedFareRules = toFareRuleFormRows(data.fare_rules || []);
+        setRows(loadedRows);
+        setInitialRows(loadedRows);
+        setFareRuleRows(loadedFareRules);
+        setInitialFareRuleRows(loadedFareRules);
         setError(null);
       } catch (err: any) {
         setError(err?.message || "Failed to load public fare rates.");
@@ -666,7 +763,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
         selectedRailMode === "PNR"
           ? "Please provide valid PNR base fare and add-on per 7km zone values."
           : usesVariantSplit
-            ? "Please provide valid distance rate and SJ/SV min/max fare values."
+            ? "Please provide valid distance rate and Single Journey Ticket/Stored Value Card minimum and maximum fare values."
             : "Please provide valid distance rate and min/max fare values.",
       );
       return;
@@ -741,8 +838,8 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
       selectedRailMode === "PNR"
         ? `${selectedRailMode} preview generated using hardcoded zone rule: first 14km uses base fare, then add-on every 7km zone, capped at ₱60.`
         : usesVariantSplit
-          ? `${selectedRailMode} preview generated: SJ uses rounded fare with SJ caps, SV uses exact computed fare with SV caps, both with standardized distance + boarding fee.`
-          : `${selectedRailMode} preview generated: single fare logic applied (no SJ/SV split), using standardized distance + boarding fee + min/max caps.`,
+          ? `${selectedRailMode} preview generated: Single Journey Ticket uses rounded fare with its fare caps, Stored Value Card uses exact computed fare with its fare caps, both with standardized distance plus boarding fee.`
+          : `${selectedRailMode} preview generated: single fare logic applied (no ticket type split), using standardized distance plus boarding fee with minimum and maximum fare caps.`,
     );
   };
 
@@ -814,6 +911,17 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     setShowFareRulesPreview((value) => !value);
   };
 
+  const onResetToLastSaved = () => {
+    setRows(initialRows);
+    setFareRuleRows(initialFareRuleRows);
+    setGeneratedPreviewRows([]);
+    setGeneratedRailPreviewRows([]);
+    setGeneratedPreviewModes([]);
+    setShowPublicTablePreview(false);
+    setShowFareRulesPreview(false);
+    setError(null);
+  };
+
   const onSave = async () => {
     if (!hasRows || !hasFareRuleRows) {
       Alert.alert("No Rows", "Add at least one fare row before saving.");
@@ -850,8 +958,13 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
         fare_rules: parsedFareRules,
       });
 
-      setRows(toFormRows(updated.public || []));
-      setFareRuleRows(toFareRuleFormRows(updated.fare_rules || []));
+      const savedRows = toFormRows(updated.public || []);
+      const savedFareRules = toFareRuleFormRows(updated.fare_rules || []);
+      setRows(savedRows);
+      setInitialRows(savedRows);
+      setFareRuleRows(savedFareRules);
+      setInitialFareRuleRows(savedFareRules);
+      setLastSavedAt(new Date().toLocaleString());
       Alert.alert(
         "Saved",
         "Public fare tables updated (public_mode_fares and fare_rules).",
@@ -870,13 +983,17 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     loading,
     saving,
     error,
+    lastSavedAt,
+    currentStep,
     selectedQuickMode,
     selectedQuickConfig,
     selectedQuickForm,
     hasInvalidSelectedQuick,
+    quickFormErrors,
     selectedRailMode,
     selectedRailForm,
     hasInvalidSelectedRailQuick,
+    railFormErrors,
     hasGeneratedPreview,
     generatedPreviewRows,
     generatedPreviewModes,
@@ -887,6 +1004,8 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     showPublicTablePreview,
     showFareRulesPreview,
     isSaveDisabled,
+    hasUnsavedChanges,
+    setCurrentStep,
     setSelectedQuickMode,
     setSelectedRailMode,
     updateQuickForm,
@@ -899,6 +1018,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     onApplyGeneratedRailPreview,
     onTogglePublicTablePreview,
     onToggleFareRulesPreview,
+    onResetToLastSaved,
     onSave,
   };
 }

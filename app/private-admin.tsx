@@ -1,14 +1,21 @@
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import {
+    Alert,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 
 import {
-  getPrivateFuelPriceOptions,
-  getPrivateVehicleFuelSettings,
-  type PrivateFuelPriceOption,
-  type PrivateVehicleFuelSetting,
-  updatePrivateFuelPriceOptions,
-  updatePrivateVehicleFuelSettings,
+    getPrivateFuelPriceOptions,
+    getPrivateVehicleFuelSettings,
+    type PrivateFuelPriceOption,
+    type PrivateVehicleFuelSetting,
+    updatePrivateFuelPriceOptions,
+    updatePrivateVehicleFuelSettings,
 } from "../services/fareApi";
 
 import { styles } from "../components/admin-styles/private-admin.styles";
@@ -21,6 +28,8 @@ type EditablePrivateFuelPriceOption = PrivateFuelPriceOption & {
   price_input: string;
 };
 
+type PrivateStep = "fuel-prices" | "vehicle-efficiency" | "review";
+
 function toEditable(
   rows: PrivateVehicleFuelSetting[],
 ): EditablePrivateVehicleFuelSetting[] {
@@ -28,6 +37,11 @@ function toEditable(
     ...row,
     fuel_efficiency_input: String(row.fuel_efficiency),
   }));
+}
+
+function isPositiveNumber(value: string): boolean {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 0;
 }
 
 export default function PrivateAdminScreen() {
@@ -46,6 +60,10 @@ export default function PrivateAdminScreen() {
   >([]);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [step, setStep] = useState<PrivateStep>("fuel-prices");
+  const [vehicleSearch, setVehicleSearch] = useState("");
+  const [fuelSearch, setFuelSearch] = useState("");
 
   const loadRows = async () => {
     setError(null);
@@ -77,25 +95,39 @@ export default function PrivateAdminScreen() {
   };
 
   useEffect(() => {
-    loadRows();
+    void loadRows();
   }, []);
 
-  const hasInvalidInput = useMemo(
+  const fuelOptionErrors = useMemo(
     () =>
-      rows.some((row) => {
-        const efficiency = Number(row.fuel_efficiency_input);
-        return !Number.isFinite(efficiency) || efficiency <= 0;
-      }),
+      fuelOptions.reduce<Record<string, string>>((acc, row) => {
+        if (!isPositiveNumber(row.price_input)) {
+          acc[row.fuel_type] = "Price must be greater than 0.";
+        }
+        return acc;
+      }, {}),
+    [fuelOptions],
+  );
+
+  const vehicleErrors = useMemo(
+    () =>
+      rows.reduce<Record<string, string>>((acc, row) => {
+        if (!isPositiveNumber(row.fuel_efficiency_input)) {
+          acc[row.vehicle_type] = "Fuel efficiency must be greater than 0.";
+        }
+        return acc;
+      }, {}),
     [rows],
   );
 
+  const hasInvalidInput = useMemo(
+    () => Object.keys(vehicleErrors).length > 0,
+    [vehicleErrors],
+  );
+
   const hasInvalidFuelOptions = useMemo(
-    () =>
-      fuelOptions.some((row) => {
-        const price = Number(row.price_input);
-        return !Number.isFinite(price) || price <= 0;
-      }),
-    [fuelOptions],
+    () => Object.keys(fuelOptionErrors).length > 0,
+    [fuelOptionErrors],
   );
 
   const hasChanges = useMemo(
@@ -104,6 +136,24 @@ export default function PrivateAdminScreen() {
       JSON.stringify(fuelOptions) !== JSON.stringify(initialFuelOptions),
     [rows, initialRows, fuelOptions, initialFuelOptions],
   );
+
+  const filteredFuelOptions = useMemo(() => {
+    const query = fuelSearch.trim().toLowerCase();
+    if (!query) return fuelOptions;
+    return fuelOptions.filter((row) =>
+      `${row.fuel_type} ${row.price_input}`.toLowerCase().includes(query),
+    );
+  }, [fuelOptions, fuelSearch]);
+
+  const filteredVehicleRows = useMemo(() => {
+    const query = vehicleSearch.trim().toLowerCase();
+    if (!query) return rows;
+    return rows.filter((row) =>
+      `${row.vehicle_type} ${row.fuel_efficiency_input}`
+        .toLowerCase()
+        .includes(query),
+    );
+  }, [rows, vehicleSearch]);
 
   const updateField = (
     index: number,
@@ -131,6 +181,26 @@ export default function PrivateAdminScreen() {
         ...row,
         is_default: row.fuel_type === fuelType,
       })),
+    );
+  };
+
+  const handleBack = () => {
+    if (!hasChanges) {
+      router.push("/selection");
+      return;
+    }
+
+    Alert.alert(
+      "Unsaved Changes",
+      "You have unsaved changes. Leave this page without saving?",
+      [
+        { text: "Stay", style: "cancel" },
+        {
+          text: "Leave",
+          style: "destructive",
+          onPress: () => router.push("/selection"),
+        },
+      ],
     );
   };
 
@@ -190,6 +260,7 @@ export default function PrivateAdminScreen() {
       }));
       setFuelOptions(editableFuelOptions);
       setInitialFuelOptions(editableFuelOptions);
+      setLastSavedAt(new Date().toLocaleString());
       setMessage("Private vehicle fuel settings saved.");
     } catch (e) {
       setError(
@@ -203,13 +274,36 @@ export default function PrivateAdminScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Pressable
-          style={styles.secondaryButton}
-          onPress={() => router.push("/selection")}
-        >
+        <Pressable style={styles.secondaryButton} onPress={handleBack}>
           <Text style={styles.secondaryButtonText}>Back</Text>
         </Pressable>
         <Text style={styles.header}>Private Transport</Text>
+      </View>
+
+      <View style={styles.stepperRow}>
+        {[
+          { key: "fuel-prices", label: "1. Fuel Prices" },
+          { key: "vehicle-efficiency", label: "2. Vehicle Efficiency" },
+          { key: "review", label: "3. Review and Save" },
+        ].map((item) => {
+          const active = step === item.key;
+          return (
+            <Pressable
+              key={item.key}
+              style={[styles.stepButton, active && styles.stepButtonActive]}
+              onPress={() => setStep(item.key as PrivateStep)}
+            >
+              <Text
+                style={[
+                  styles.stepButtonText,
+                  active && styles.stepButtonTextActive,
+                ]}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -217,102 +311,179 @@ export default function PrivateAdminScreen() {
           <Text style={styles.infoTitle}>Private Vehicle Fuel Settings</Text>
           <Text style={styles.infoText}>
             Edit fixed fuel efficiency values per vehicle type and one global
-            fuel type pricing (Diesel, Gasoline RON 91, Gasoline RON 95).
+            fuel type pricing.
           </Text>
 
-          <Text style={styles.fieldLabel}>Fuel Type Prices (₱/L)</Text>
-          {fuelOptions.map((option, index) => (
-            <View key={option.fuel_type} style={styles.row}>
-              <Text style={styles.rowTitle}>{option.fuel_type}</Text>
+          {step === "fuel-prices" ? (
+            <>
+              <Text style={styles.fieldLabel}>Fuel Type Prices (P/L)</Text>
               <TextInput
-                value={option.price_input}
-                onChangeText={(value) => updateFuelOptionPrice(index, value)}
-                keyboardType="decimal-pad"
-                style={styles.input}
-                placeholder="0"
-                placeholderTextColor="#687286"
+                style={styles.searchInput}
+                value={fuelSearch}
+                onChangeText={setFuelSearch}
+                placeholder="Search fuel type"
+                placeholderTextColor="#7c8697"
               />
-              <Pressable
-                style={styles.secondaryButton}
-                onPress={() => setDefaultFuelOption(option.fuel_type)}
-              >
-                <Text style={styles.secondaryButtonText}>
-                  {option.is_default ? "Default Fuel Type" : "Set as Default"}
-                </Text>
-              </Pressable>
+
+              {filteredFuelOptions.map((option) => {
+                const index = fuelOptions.findIndex(
+                  (row) => row.fuel_type === option.fuel_type,
+                );
+                return (
+                  <View key={option.fuel_type} style={styles.row}>
+                    <Text style={styles.rowTitle}>{option.fuel_type}</Text>
+                    <TextInput
+                      value={option.price_input}
+                      onChangeText={(value) =>
+                        updateFuelOptionPrice(index, value)
+                      }
+                      keyboardType="decimal-pad"
+                      style={[
+                        styles.input,
+                        fuelOptionErrors[option.fuel_type]
+                          ? styles.inputError
+                          : null,
+                      ]}
+                      placeholder="0"
+                      placeholderTextColor="#687286"
+                    />
+                    {fuelOptionErrors[option.fuel_type] ? (
+                      <Text style={styles.fieldErrorText}>
+                        {fuelOptionErrors[option.fuel_type]}
+                      </Text>
+                    ) : null}
+                    <Pressable
+                      style={styles.secondaryButton}
+                      onPress={() => setDefaultFuelOption(option.fuel_type)}
+                    >
+                      <Text style={styles.secondaryButtonText}>
+                        {option.is_default
+                          ? "Default Fuel Type"
+                          : "Set as Default"}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              })}
+            </>
+          ) : null}
+
+          {step === "vehicle-efficiency" ? (
+            <>
+              <Text style={styles.fieldLabel}>
+                Vehicle Fuel Efficiency (km/L)
+              </Text>
+              <TextInput
+                style={styles.searchInput}
+                value={vehicleSearch}
+                onChangeText={setVehicleSearch}
+                placeholder="Search vehicle type"
+                placeholderTextColor="#7c8697"
+              />
+              {!isLoading
+                ? filteredVehicleRows.map((row) => {
+                    const index = rows.findIndex(
+                      (item) => item.vehicle_type === row.vehicle_type,
+                    );
+                    return (
+                      <View key={row.vehicle_type} style={styles.row}>
+                        <Text style={styles.rowTitle}>{row.vehicle_type}</Text>
+                        <TextInput
+                          value={row.fuel_efficiency_input}
+                          onChangeText={(value) =>
+                            updateField(index, "fuel_efficiency_input", value)
+                          }
+                          keyboardType="decimal-pad"
+                          style={[
+                            styles.input,
+                            vehicleErrors[row.vehicle_type]
+                              ? styles.inputError
+                              : null,
+                          ]}
+                          placeholder="0"
+                          placeholderTextColor="#687286"
+                        />
+                        {vehicleErrors[row.vehicle_type] ? (
+                          <Text style={styles.fieldErrorText}>
+                            {vehicleErrors[row.vehicle_type]}
+                          </Text>
+                        ) : null}
+                      </View>
+                    );
+                  })
+                : null}
+            </>
+          ) : null}
+
+          {step === "review" ? (
+            <View>
+              <Text style={styles.infoText}>
+                Review your changes, then save to apply fixed private transport
+                defaults in fare estimation.
+              </Text>
+              <Text style={styles.mutedText}>
+                Fuel options: {fuelOptions.length} | Vehicle settings:{" "}
+                {rows.length}
+              </Text>
             </View>
-          ))}
+          ) : null}
 
           {isLoading ? (
             <Text style={styles.loadingText}>Loading settings...</Text>
           ) : null}
-
           {!isLoading && rows.length === 0 ? (
             <Text style={styles.infoText}>No vehicle settings found.</Text>
           ) : null}
 
-          {!isLoading
-            ? rows.map((row, index) => (
-                <View key={row.vehicle_type} style={styles.row}>
-                  <Text style={styles.rowTitle}>{row.vehicle_type}</Text>
-
-                  <Text style={styles.fieldLabel}>Fuel Efficiency (km/L)</Text>
-                  <TextInput
-                    value={row.fuel_efficiency_input}
-                    onChangeText={(value) =>
-                      updateField(index, "fuel_efficiency_input", value)
-                    }
-                    keyboardType="decimal-pad"
-                    style={styles.input}
-                    placeholder="0"
-                    placeholderTextColor="#687286"
-                  />
-                </View>
-              ))
-            : null}
-
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
           {message ? <Text style={styles.infoText}>{message}</Text> : null}
+        </View>
+      </ScrollView>
 
-          <View style={styles.actions}>
-            <Pressable
-              style={styles.secondaryButton}
-              onPress={handleReset}
-              disabled={!hasChanges || isLoading || isSaving}
-            >
-              <Text style={styles.secondaryButtonText}>Reset</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.primaryButton,
-                (!hasChanges ||
-                  hasInvalidInput ||
-                  hasInvalidFuelOptions ||
-                  isSaving ||
-                  isLoading) &&
-                  styles.primaryButtonDisabled,
-              ]}
-              onPress={handleSave}
-              disabled={
-                !hasChanges ||
+      <View style={styles.stickyBar}>
+        <View style={styles.stickyMetaRow}>
+          <Text style={styles.stickyMuted}>
+            {lastSavedAt ? `Last saved: ${lastSavedAt}` : "Not saved yet"}
+          </Text>
+          {hasChanges ? (
+            <Text style={styles.stickyWarning}>Unsaved changes</Text>
+          ) : (
+            <Text style={styles.stickyMuted}>All changes saved</Text>
+          )}
+        </View>
+        <View style={styles.actions}>
+          <Pressable
+            style={styles.secondaryButton}
+            onPress={handleReset}
+            disabled={!hasChanges || isLoading || isSaving}
+          >
+            <Text style={styles.secondaryButtonText}>Reset</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.primaryButton,
+              (!hasChanges ||
                 hasInvalidInput ||
                 hasInvalidFuelOptions ||
                 isSaving ||
-                isLoading
-              }
-            >
-              <Text style={styles.primaryButtonText}>
-                {isSaving ? "Saving..." : "Save"}
-              </Text>
-            </Pressable>
-          </View>
-
-          <Text style={styles.mutedText}>
-            These values are used as fixed defaults for private vehicle cost
-            estimation.
-          </Text>
+                isLoading) &&
+                styles.primaryButtonDisabled,
+            ]}
+            onPress={handleSave}
+            disabled={
+              !hasChanges ||
+              hasInvalidInput ||
+              hasInvalidFuelOptions ||
+              isSaving ||
+              isLoading
+            }
+          >
+            <Text style={styles.primaryButtonText}>
+              {isSaving ? "Saving..." : "Save"}
+            </Text>
+          </Pressable>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 }

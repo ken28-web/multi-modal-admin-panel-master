@@ -5,7 +5,7 @@ import { adminCommonStyles } from "./global";
 export const styles = StyleSheet.create({
   ...adminCommonStyles,
   scrollContent: {
-    paddingBottom: 28,
+    paddingBottom: 14,
   },
   card: {
     width: "100%",
@@ -16,6 +16,35 @@ export const styles = StyleSheet.create({
     borderColor: "#303642",
     padding: 18,
     alignSelf: "center",
+    marginBottom: 12,
+  },
+  stepperRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 10,
+  },
+  stepButton: {
+    paddingHorizontal: 12,
+    height: 36,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#3a4250",
+    backgroundColor: "#222833",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepButtonActive: {
+    borderColor: "#7da2d2",
+    backgroundColor: "#2b3a4f",
+  },
+  stepButtonText: {
+    color: "#c6cfde",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  stepButtonTextActive: {
+    color: "#edf4ff",
   },
   infoTitle: {
     fontSize: 18,
@@ -53,9 +82,19 @@ export const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   fieldLabel: {
-    color: "#aab1bd",
-    fontSize: 13,
+    color: "#c6cfde",
+    fontSize: 14,
     marginBottom: 6,
+  },
+  searchInput: {
+    height: 40,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#364050",
+    backgroundColor: "#10131a",
+    color: "#d7dbe3",
+    paddingHorizontal: 10,
+    marginBottom: 12,
   },
   input: {
     height: 40,
@@ -67,10 +106,19 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
   },
+  inputError: {
+    borderColor: "#d96f89",
+  },
+  fieldErrorText: {
+    color: "#f0a5b6",
+    fontSize: 12,
+    marginTop: -4,
+    marginBottom: 8,
+  },
   actions: {
     flexDirection: "row",
     gap: 10,
-    marginTop: 10,
+    marginTop: 4,
   },
   primaryButton: {
     flex: 1,
@@ -91,5 +139,27 @@ export const styles = StyleSheet.create({
     color: "#aab1bd",
     fontSize: 13,
     marginTop: 10,
+  },
+  stickyBar: {
+    borderWidth: 1,
+    borderColor: "#303642",
+    borderRadius: 12,
+    backgroundColor: "#1b1f27",
+    padding: 12,
+    gap: 8,
+  },
+  stickyMetaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  stickyMuted: {
+    color: "#aeb7c6",
+    fontSize: 12,
+  },
+  stickyWarning: {
+    color: "#f3c27b",
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

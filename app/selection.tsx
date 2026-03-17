@@ -7,20 +7,22 @@ export default function SelectionScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select Fare Category</Text>
+      <Text style={styles.title}>Choose What You Want to Manage</Text>
 
       <TouchableOpacity
         style={[styles.choiceBtn, styles.publicBtn]}
         onPress={() => router.push("/public-admin")}
       >
-        <Text style={styles.btnText}>Public Transport Rates</Text>
+        <Text style={styles.btnText}>
+          Public Transport Rates (PUV and Rail)
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.choiceBtn, styles.privateBtn]}
         onPress={() => router.push("/private-admin")}
       >
-        <Text style={styles.btnText}>Private Transport Rates</Text>
+        <Text style={styles.btnText}>Private Transport Fuel Settings</Text>
       </TouchableOpacity>
     </View>
   );
