@@ -62,6 +62,7 @@ export function PublicAdminView({
   showPublicTablePreview,
   showFareRulesPreview,
   isSaveDisabled,
+  hasPendingPreviewChanges,
   hasUnsavedChanges,
   setCurrentStep,
   setSelectedQuickMode,
@@ -441,7 +442,11 @@ export function PublicAdminView({
 
                     <View style={[styles.actionsRow, compactActionsRowStyle]}>
                       <Pressable
-                        style={[styles.secondaryButton, compactButtonStyle]}
+                        style={[
+                          styles.secondaryButton,
+                          styles.secondaryActionButton,
+                          compactButtonStyle,
+                        ]}
                         onPress={onClearGeneratedPreview}
                       >
                         <Text style={styles.secondaryButtonText}>
@@ -449,7 +454,11 @@ export function PublicAdminView({
                         </Text>
                       </Pressable>
                       <Pressable
-                        style={[styles.primaryButton, compactButtonStyle]}
+                        style={[
+                          styles.primaryButton,
+                          styles.primaryActionButton,
+                          compactButtonStyle,
+                        ]}
                         onPress={onApplyGeneratedPreview}
                       >
                         <Text style={styles.primaryButtonText}>
@@ -877,7 +886,11 @@ export function PublicAdminView({
 
                     <View style={[styles.actionsRow, compactActionsRowStyle]}>
                       <Pressable
-                        style={[styles.secondaryButton, compactButtonStyle]}
+                        style={[
+                          styles.secondaryButton,
+                          styles.secondaryActionButton,
+                          compactButtonStyle,
+                        ]}
                         onPress={onClearGeneratedRailPreview}
                       >
                         <Text style={styles.secondaryButtonText}>
@@ -885,7 +898,11 @@ export function PublicAdminView({
                         </Text>
                       </Pressable>
                       <Pressable
-                        style={[styles.primaryButton, compactButtonStyle]}
+                        style={[
+                          styles.primaryButton,
+                          styles.primaryActionButton,
+                          compactButtonStyle,
+                        ]}
                         onPress={onApplyGeneratedRailPreview}
                       >
                         <Text style={styles.primaryButtonText}>
@@ -1111,9 +1128,19 @@ export function PublicAdminView({
               )}
             </View>
 
+            {hasPendingPreviewChanges ? (
+              <Text style={styles.pendingApplyText}>
+                Apply or discard all generated previews before saving tables.
+              </Text>
+            ) : null}
+
             <View style={[styles.stickyActions, compactStickyActionsStyle]}>
               <Pressable
-                style={[styles.secondaryButton, compactButtonStyle]}
+                style={[
+                  styles.secondaryButton,
+                  styles.secondaryActionButton,
+                  compactButtonStyle,
+                ]}
                 onPress={onResetToLastSaved}
                 disabled={!hasUnsavedChanges || saving}
               >
@@ -1124,6 +1151,7 @@ export function PublicAdminView({
               <Pressable
                 style={[
                   styles.primaryButton,
+                  styles.primaryActionButton,
                   compactButtonStyle,
                   isSaveDisabled && styles.primaryButtonDisabled,
                 ]}

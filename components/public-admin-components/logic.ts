@@ -360,6 +360,7 @@ export type PublicAdminViewModel = {
   showPublicTablePreview: boolean;
   showFareRulesPreview: boolean;
   isSaveDisabled: boolean;
+  hasPendingPreviewChanges: boolean;
   hasUnsavedChanges: boolean;
   setCurrentStep: (step: PublicAdminStep) => void;
   setSelectedQuickMode: (mode: QuickMode) => void;
@@ -461,6 +462,8 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
   const hasFareRuleRows = fareRuleRows.length > 0;
   const hasGeneratedPreview = generatedPreviewRows.length > 0;
   const hasGeneratedRailPreview = generatedRailPreviewRows.length > 0;
+  const hasPendingPreviewChanges =
+    hasGeneratedPreview || hasGeneratedRailPreview;
 
   const hasInvalidRows = useMemo(
     () =>
@@ -641,7 +644,8 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     hasInvalidRows ||
     !hasRows ||
     hasInvalidFareRules ||
-    !hasFareRuleRows;
+    !hasFareRuleRows ||
+    hasPendingPreviewChanges;
 
   useEffect(() => {
     const run = async () => {
@@ -1004,6 +1008,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     showPublicTablePreview,
     showFareRulesPreview,
     isSaveDisabled,
+    hasPendingPreviewChanges,
     hasUnsavedChanges,
     setCurrentStep,
     setSelectedQuickMode,

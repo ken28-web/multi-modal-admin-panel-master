@@ -286,6 +286,12 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  primaryActionButton: {
+    flexGrow: 2,
+  },
+  secondaryActionButton: {
+    flexGrow: 1,
+  },
   railGenerateButton: {
     flexBasis: "100%",
     minHeight: 44,
@@ -322,6 +328,11 @@ export const styles = StyleSheet.create({
   },
   stickyWarning: {
     color: "#f3c27b",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  pendingApplyText: {
+    color: "#f0a5b6",
     fontSize: 12,
     fontWeight: "700",
   },

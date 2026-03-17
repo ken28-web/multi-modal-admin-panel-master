@@ -128,6 +128,12 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  primaryActionButton: {
+    flexGrow: 2,
+  },
+  secondaryActionButton: {
+    flexGrow: 1,
+  },
   primaryButtonDisabled: {
     opacity: 0.6,
   },

@@ -504,7 +504,11 @@ export default function PrivateAdminScreen() {
         </View>
         <View style={[styles.actions, compactActionsStyle]}>
           <Pressable
-            style={[styles.secondaryButton, compactButtonStyle]}
+            style={[
+              styles.secondaryButton,
+              styles.secondaryActionButton,
+              compactButtonStyle,
+            ]}
             onPress={handleReset}
             disabled={!hasChanges || isLoading || isSaving}
           >
@@ -513,6 +517,7 @@ export default function PrivateAdminScreen() {
           <Pressable
             style={[
               styles.primaryButton,
+              styles.primaryActionButton,
               compactButtonStyle,
               (!hasChanges ||
                 hasInvalidInput ||
