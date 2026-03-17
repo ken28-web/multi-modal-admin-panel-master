@@ -221,6 +221,33 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
+  mobileRowCard: {
+    borderWidth: 1,
+    borderColor: "#36404e",
+    borderRadius: 8,
+    backgroundColor: "#181e28",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    gap: 6,
+  },
+  mobileFieldRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  mobileFieldLabel: {
+    color: "#aab1be",
+    fontSize: 12,
+    fontWeight: "700",
+    flexShrink: 0,
+  },
+  mobileFieldValue: {
+    color: "#d4dae5",
+    fontSize: 13,
+    textAlign: "right",
+    flexShrink: 1,
+  },
   input: {
     height: 42,
     borderWidth: 1,

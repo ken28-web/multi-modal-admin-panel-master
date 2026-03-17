@@ -64,6 +64,15 @@ export default function PrivateAdminScreen() {
     ? ({ flexDirection: "column" } as const)
     : null;
   const compactButtonStyle = isCompact ? ({ width: "100%" } as const) : null;
+  const compactSecondaryButtonStyle = isCompact
+    ? ({ minHeight: 40 } as const)
+    : null;
+  const compactPrimaryButtonStyle = isCompact
+    ? ({ minHeight: 52 } as const)
+    : null;
+  const compactPrimaryButtonTextStyle = isCompact
+    ? ({ fontSize: 16 } as const)
+    : null;
   const compactStickyMetaStyle = isCompact
     ? ({ flexDirection: "column", alignItems: "flex-start", gap: 6 } as const)
     : null;
@@ -508,6 +517,7 @@ export default function PrivateAdminScreen() {
               styles.secondaryButton,
               !isCompact && styles.secondaryActionButton,
               compactButtonStyle,
+              compactSecondaryButtonStyle,
             ]}
             onPress={handleReset}
             disabled={!hasChanges || isLoading || isSaving}
@@ -519,6 +529,7 @@ export default function PrivateAdminScreen() {
               styles.primaryButton,
               !isCompact && styles.primaryActionButton,
               compactButtonStyle,
+              compactPrimaryButtonStyle,
               (!hasChanges ||
                 hasInvalidInput ||
                 hasInvalidFuelOptions ||
@@ -535,7 +546,9 @@ export default function PrivateAdminScreen() {
               isLoading
             }
           >
-            <Text style={styles.primaryButtonText}>
+            <Text
+              style={[styles.primaryButtonText, compactPrimaryButtonTextStyle]}
+            >
               {isSaving ? "Saving..." : "Save"}
             </Text>
           </Pressable>

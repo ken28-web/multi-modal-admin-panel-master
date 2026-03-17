@@ -91,6 +91,15 @@ export function PublicAdminView({
     : null;
   const compactCardStyle = isCompact ? ({ padding: 12 } as const) : null;
   const compactButtonStyle = isCompact ? ({ width: "100%" } as const) : null;
+  const compactSecondaryButtonStyle = isCompact
+    ? ({ minHeight: 40 } as const)
+    : null;
+  const compactPrimaryButtonStyle = isCompact
+    ? ({ minHeight: 52 } as const)
+    : null;
+  const compactPrimaryButtonTextStyle = isCompact
+    ? ({ fontSize: 16 } as const)
+    : null;
   const compactFormulaCellStyle = isCompact
     ? ({ minWidth: "100%" } as const)
     : null;
@@ -106,8 +115,6 @@ export function PublicAdminView({
   const compactStepperButtonStyle = isCompact
     ? ({ width: "100%", minHeight: 40 } as const)
     : null;
-  const compactTableMinWidth = 640;
-  const compactRailTableMinWidth = 980;
 
   const railUsesVariantSplit =
     selectedRailMode === "LRT1" || selectedRailMode === "LRT2";
@@ -382,64 +389,100 @@ export function PublicAdminView({
                         .join(", ")}
                     </Text>
 
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator
-                      contentContainerStyle={styles.tableScrollContent}
-                    >
-                      <View
-                        style={
-                          isCompact
-                            ? { minWidth: compactTableMinWidth }
-                            : undefined
-                        }
+                    {isCompact ? (
+                      <ScrollView
+                        style={styles.previewRowsWrap}
+                        contentContainerStyle={styles.rowsContent}
                       >
-                        <View style={styles.tableHeader}>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Mode
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Distance
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Regular
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Discounted
-                          </Text>
-                        </View>
-
-                        <ScrollView
-                          style={styles.previewRowsWrap}
-                          contentContainerStyle={styles.rowsContent}
-                        >
-                          {generatedPreviewRows.map((row) => (
-                            <View key={row.id} style={styles.row}>
-                              <TextInput
-                                style={[styles.input, styles.modeCol]}
-                                value={row.mode}
-                                editable={false}
-                              />
-                              <TextInput
-                                style={[styles.input, styles.smallCol]}
-                                value={row.distance_km}
-                                editable={false}
-                              />
-                              <TextInput
-                                style={[styles.input, styles.smallCol]}
-                                value={row.regular}
-                                editable={false}
-                              />
-                              <TextInput
-                                style={[styles.input, styles.smallCol]}
-                                value={row.discounted}
-                                editable={false}
-                              />
+                        {generatedPreviewRows.map((row) => (
+                          <View key={row.id} style={styles.mobileRowCard}>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>Mode</Text>
+                              <Text style={styles.mobileFieldValue}>
+                                {row.mode}
+                              </Text>
                             </View>
-                          ))}
-                        </ScrollView>
-                      </View>
-                    </ScrollView>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Distance
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
+                                {row.distance_km}
+                              </Text>
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Regular
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
+                                {row.regular}
+                              </Text>
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Discounted
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
+                                {row.discounted}
+                              </Text>
+                            </View>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    ) : (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator
+                        contentContainerStyle={styles.tableScrollContent}
+                      >
+                        <View>
+                          <View style={styles.tableHeader}>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Mode
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Distance
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Regular
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Discounted
+                            </Text>
+                          </View>
+
+                          <ScrollView
+                            style={styles.previewRowsWrap}
+                            contentContainerStyle={styles.rowsContent}
+                          >
+                            {generatedPreviewRows.map((row) => (
+                              <View key={row.id} style={styles.row}>
+                                <TextInput
+                                  style={[styles.input, styles.modeCol]}
+                                  value={row.mode}
+                                  editable={false}
+                                />
+                                <TextInput
+                                  style={[styles.input, styles.smallCol]}
+                                  value={row.distance_km}
+                                  editable={false}
+                                />
+                                <TextInput
+                                  style={[styles.input, styles.smallCol]}
+                                  value={row.regular}
+                                  editable={false}
+                                />
+                                <TextInput
+                                  style={[styles.input, styles.smallCol]}
+                                  value={row.discounted}
+                                  editable={false}
+                                />
+                              </View>
+                            ))}
+                          </ScrollView>
+                        </View>
+                      </ScrollView>
+                    )}
 
                     <View style={[styles.actionsRow, compactActionsRowStyle]}>
                       <Pressable
@@ -810,80 +853,132 @@ export function PublicAdminView({
                       Mode: {selectedRailMode}
                     </Text>
 
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator
-                      contentContainerStyle={styles.tableScrollContent}
-                    >
-                      <View
-                        style={
-                          isCompact
-                            ? { minWidth: compactRailTableMinWidth }
-                            : undefined
-                        }
+                    {isCompact ? (
+                      <ScrollView
+                        style={styles.previewRowsWrap}
+                        contentContainerStyle={styles.rowsContent}
                       >
-                        <View style={styles.tableHeaderLarge}>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Transport
-                          </Text>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Service
-                          </Text>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Origin
-                          </Text>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Destination
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Fare
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Ticket Type
-                          </Text>
-                        </View>
-
-                        <ScrollView
-                          style={styles.previewRowsWrap}
-                          contentContainerStyle={styles.rowsContent}
-                        >
-                          {generatedRailPreviewRows.map((row) => (
-                            <View key={row.id} style={styles.row}>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                        {generatedRailPreviewRows.map((row) => (
+                          <View key={row.id} style={styles.mobileRowCard}>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Transport
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.transport_mode}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Service
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.service_type}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Origin
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.origin}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Destination
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.destination}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.smallCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>Fare</Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.fare}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.smallCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Ticket Type
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {formatTicketTypeLabel(row.variant_type)}
                               </Text>
                             </View>
-                          ))}
-                        </ScrollView>
-                      </View>
-                    </ScrollView>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    ) : (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator
+                        contentContainerStyle={styles.tableScrollContent}
+                      >
+                        <View>
+                          <View style={styles.tableHeaderLarge}>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Transport
+                            </Text>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Service
+                            </Text>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Origin
+                            </Text>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Destination
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Fare
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Ticket Type
+                            </Text>
+                          </View>
+
+                          <ScrollView
+                            style={styles.previewRowsWrap}
+                            contentContainerStyle={styles.rowsContent}
+                          >
+                            {generatedRailPreviewRows.map((row) => (
+                              <View key={row.id} style={styles.row}>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.transport_mode}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.service_type}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.origin}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.destination}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.smallCol]}
+                                >
+                                  {row.fare}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.smallCol]}
+                                >
+                                  {formatTicketTypeLabel(row.variant_type)}
+                                </Text>
+                              </View>
+                            ))}
+                          </ScrollView>
+                        </View>
+                      </ScrollView>
+                    )}
 
                     <View style={[styles.actionsRow, compactActionsRowStyle]}>
                       <Pressable
@@ -951,64 +1046,100 @@ export function PublicAdminView({
                       placeholder="Search by distance or fare"
                       placeholderTextColor="#808a9c"
                     />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator
-                      contentContainerStyle={styles.tableScrollContent}
-                    >
-                      <View
-                        style={
-                          isCompact
-                            ? { minWidth: compactTableMinWidth }
-                            : undefined
-                        }
+                    {isCompact ? (
+                      <ScrollView
+                        style={styles.previewRowsWrap}
+                        contentContainerStyle={styles.rowsContent}
                       >
-                        <View style={styles.tableHeader}>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Mode
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Distance
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Regular
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Discounted
-                          </Text>
-                        </View>
-
-                        <ScrollView
-                          style={styles.previewRowsWrap}
-                          contentContainerStyle={styles.rowsContent}
-                        >
-                          {selectedQuickModeRows.map((row) => (
-                            <View key={row.id} style={styles.row}>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                        {selectedQuickModeRows.map((row) => (
+                          <View key={row.id} style={styles.mobileRowCard}>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>Mode</Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.mode}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.smallCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Distance
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.distance_km}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.smallCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Regular
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.regular}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.smallCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Discounted
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.discounted}
                               </Text>
                             </View>
-                          ))}
-                        </ScrollView>
-                      </View>
-                    </ScrollView>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    ) : (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator
+                        contentContainerStyle={styles.tableScrollContent}
+                      >
+                        <View>
+                          <View style={styles.tableHeader}>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Mode
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Distance
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Regular
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Discounted
+                            </Text>
+                          </View>
+
+                          <ScrollView
+                            style={styles.previewRowsWrap}
+                            contentContainerStyle={styles.rowsContent}
+                          >
+                            {selectedQuickModeRows.map((row) => (
+                              <View key={row.id} style={styles.row}>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.mode}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.smallCol]}
+                                >
+                                  {row.distance_km}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.smallCol]}
+                                >
+                                  {row.regular}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.smallCol]}
+                                >
+                                  {row.discounted}
+                                </Text>
+                              </View>
+                            ))}
+                          </ScrollView>
+                        </View>
+                      </ScrollView>
+                    )}
                   </View>
                 ) : null}
 
@@ -1037,80 +1168,132 @@ export function PublicAdminView({
                       placeholder="Search by station, service, or ticket type"
                       placeholderTextColor="#808a9c"
                     />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator
-                      contentContainerStyle={styles.tableScrollContent}
-                    >
-                      <View
-                        style={
-                          isCompact
-                            ? { minWidth: compactRailTableMinWidth }
-                            : undefined
-                        }
+                    {isCompact ? (
+                      <ScrollView
+                        style={styles.previewRowsWrap}
+                        contentContainerStyle={styles.rowsContent}
                       >
-                        <View style={styles.tableHeaderLarge}>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Transport
-                          </Text>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Service
-                          </Text>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Origin
-                          </Text>
-                          <Text style={[styles.colHeader, styles.modeCol]}>
-                            Destination
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Fare
-                          </Text>
-                          <Text style={[styles.colHeader, styles.smallCol]}>
-                            Ticket Type
-                          </Text>
-                        </View>
-
-                        <ScrollView
-                          style={styles.previewRowsWrap}
-                          contentContainerStyle={styles.rowsContent}
-                        >
-                          {selectedModeFareRuleRows.map((row) => (
-                            <View key={row.id} style={styles.row}>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                        {selectedModeFareRuleRows.map((row) => (
+                          <View key={row.id} style={styles.mobileRowCard}>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Transport
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.transport_mode}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Service
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.service_type}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Origin
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.origin}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.modeCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Destination
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.destination}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.smallCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>Fare</Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {row.fare}
                               </Text>
-                              <Text
-                                style={[styles.previewCell, styles.smallCol]}
-                              >
+                            </View>
+                            <View style={styles.mobileFieldRow}>
+                              <Text style={styles.mobileFieldLabel}>
+                                Ticket Type
+                              </Text>
+                              <Text style={styles.mobileFieldValue}>
                                 {formatTicketTypeLabel(row.variant_type)}
                               </Text>
                             </View>
-                          ))}
-                        </ScrollView>
-                      </View>
-                    </ScrollView>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    ) : (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator
+                        contentContainerStyle={styles.tableScrollContent}
+                      >
+                        <View>
+                          <View style={styles.tableHeaderLarge}>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Transport
+                            </Text>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Service
+                            </Text>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Origin
+                            </Text>
+                            <Text style={[styles.colHeader, styles.modeCol]}>
+                              Destination
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Fare
+                            </Text>
+                            <Text style={[styles.colHeader, styles.smallCol]}>
+                              Ticket Type
+                            </Text>
+                          </View>
+
+                          <ScrollView
+                            style={styles.previewRowsWrap}
+                            contentContainerStyle={styles.rowsContent}
+                          >
+                            {selectedModeFareRuleRows.map((row) => (
+                              <View key={row.id} style={styles.row}>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.transport_mode}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.service_type}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.origin}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.modeCol]}
+                                >
+                                  {row.destination}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.smallCol]}
+                                >
+                                  {row.fare}
+                                </Text>
+                                <Text
+                                  style={[styles.previewCell, styles.smallCol]}
+                                >
+                                  {formatTicketTypeLabel(row.variant_type)}
+                                </Text>
+                              </View>
+                            ))}
+                          </ScrollView>
+                        </View>
+                      </ScrollView>
+                    )}
                   </View>
                 ) : null}
               </View>
@@ -1148,6 +1331,7 @@ export function PublicAdminView({
                   styles.secondaryButton,
                   !isCompact && styles.secondaryActionButton,
                   compactButtonStyle,
+                  compactSecondaryButtonStyle,
                 ]}
                 onPress={onResetToLastSaved}
                 disabled={!hasUnsavedChanges || saving}
@@ -1161,12 +1345,18 @@ export function PublicAdminView({
                   styles.primaryButton,
                   !isCompact && styles.primaryActionButton,
                   compactButtonStyle,
+                  compactPrimaryButtonStyle,
                   isSaveDisabled && styles.primaryButtonDisabled,
                 ]}
                 onPress={onSave}
                 disabled={isSaveDisabled}
               >
-                <Text style={styles.primaryButtonText}>
+                <Text
+                  style={[
+                    styles.primaryButtonText,
+                    compactPrimaryButtonTextStyle,
+                  ]}
+                >
                   {saving ? "Saving..." : "Save Public Fare Tables"}
                 </Text>
               </Pressable>
