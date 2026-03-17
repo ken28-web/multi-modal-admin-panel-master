@@ -11,7 +11,7 @@
     "newArchEnabled": true,
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./public/favicon.ico"
     },
     "plugins": [
       "expo-router",
