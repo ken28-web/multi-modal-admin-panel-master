@@ -63,6 +63,7 @@ export function PublicAdminView({
   showFareRulesPreview,
   isSaveDisabled,
   hasPendingPreviewChanges,
+  hasAppliedPreviewToTable,
   hasUnsavedChanges,
   setCurrentStep,
   setSelectedQuickMode,
@@ -444,7 +445,7 @@ export function PublicAdminView({
                       <Pressable
                         style={[
                           styles.secondaryButton,
-                          styles.secondaryActionButton,
+                          !isCompact && styles.secondaryActionButton,
                           compactButtonStyle,
                         ]}
                         onPress={onClearGeneratedPreview}
@@ -456,7 +457,7 @@ export function PublicAdminView({
                       <Pressable
                         style={[
                           styles.primaryButton,
-                          styles.primaryActionButton,
+                          !isCompact && styles.primaryActionButton,
                           compactButtonStyle,
                         ]}
                         onPress={onApplyGeneratedPreview}
@@ -888,7 +889,7 @@ export function PublicAdminView({
                       <Pressable
                         style={[
                           styles.secondaryButton,
-                          styles.secondaryActionButton,
+                          !isCompact && styles.secondaryActionButton,
                           compactButtonStyle,
                         ]}
                         onPress={onClearGeneratedRailPreview}
@@ -900,7 +901,7 @@ export function PublicAdminView({
                       <Pressable
                         style={[
                           styles.primaryButton,
-                          styles.primaryActionButton,
+                          !isCompact && styles.primaryActionButton,
                           compactButtonStyle,
                         ]}
                         onPress={onApplyGeneratedRailPreview}
@@ -1134,11 +1135,18 @@ export function PublicAdminView({
               </Text>
             ) : null}
 
+            {!hasPendingPreviewChanges && !hasAppliedPreviewToTable ? (
+              <Text style={styles.pendingApplyText}>
+                Generate and apply a preview first before saving public fare
+                tables.
+              </Text>
+            ) : null}
+
             <View style={[styles.stickyActions, compactStickyActionsStyle]}>
               <Pressable
                 style={[
                   styles.secondaryButton,
-                  styles.secondaryActionButton,
+                  !isCompact && styles.secondaryActionButton,
                   compactButtonStyle,
                 ]}
                 onPress={onResetToLastSaved}
@@ -1151,7 +1159,7 @@ export function PublicAdminView({
               <Pressable
                 style={[
                   styles.primaryButton,
-                  styles.primaryActionButton,
+                  !isCompact && styles.primaryActionButton,
                   compactButtonStyle,
                   isSaveDisabled && styles.primaryButtonDisabled,
                 ]}

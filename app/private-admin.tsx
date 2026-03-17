@@ -506,7 +506,7 @@ export default function PrivateAdminScreen() {
           <Pressable
             style={[
               styles.secondaryButton,
-              styles.secondaryActionButton,
+              !isCompact && styles.secondaryActionButton,
               compactButtonStyle,
             ]}
             onPress={handleReset}
@@ -517,7 +517,7 @@ export default function PrivateAdminScreen() {
           <Pressable
             style={[
               styles.primaryButton,
-              styles.primaryActionButton,
+              !isCompact && styles.primaryActionButton,
               compactButtonStyle,
               (!hasChanges ||
                 hasInvalidInput ||

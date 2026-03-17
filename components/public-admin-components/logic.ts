@@ -361,6 +361,7 @@ export type PublicAdminViewModel = {
   showFareRulesPreview: boolean;
   isSaveDisabled: boolean;
   hasPendingPreviewChanges: boolean;
+  hasAppliedPreviewToTable: boolean;
   hasUnsavedChanges: boolean;
   setCurrentStep: (step: PublicAdminStep) => void;
   setSelectedQuickMode: (mode: QuickMode) => void;
@@ -456,6 +457,8 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
   const [generatedRailPreviewRows, setGeneratedRailPreviewRows] = useState<
     FareRuleRowForm[]
   >([]);
+  const [hasAppliedPreviewToTable, setHasAppliedPreviewToTable] =
+    useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const hasRows = rows.length > 0;
@@ -645,7 +648,8 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     !hasRows ||
     hasInvalidFareRules ||
     !hasFareRuleRows ||
-    hasPendingPreviewChanges;
+    hasPendingPreviewChanges ||
+    !hasAppliedPreviewToTable;
 
   useEffect(() => {
     const run = async () => {
@@ -658,6 +662,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
         setInitialRows(loadedRows);
         setFareRuleRows(loadedFareRules);
         setInitialFareRuleRows(loadedFareRules);
+        setHasAppliedPreviewToTable(false);
         setError(null);
       } catch (err: any) {
         setError(err?.message || "Failed to load public fare rates.");
@@ -872,6 +877,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     });
 
     setRows(toFormRows(merged));
+    setHasAppliedPreviewToTable(true);
     onClearGeneratedPreview();
     Alert.alert(
       "Applied",
@@ -903,6 +909,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
       (row) => previewMap.get(previewKey(row)) || row,
     );
     setFareRuleRows(merged);
+    setHasAppliedPreviewToTable(true);
     onClearGeneratedRailPreview();
     Alert.alert("Applied", "Rail preview rows are now applied to fare_rules.");
   };
@@ -923,6 +930,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     setGeneratedPreviewModes([]);
     setShowPublicTablePreview(false);
     setShowFareRulesPreview(false);
+    setHasAppliedPreviewToTable(false);
     setError(null);
   };
 
@@ -968,6 +976,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
       setInitialRows(savedRows);
       setFareRuleRows(savedFareRules);
       setInitialFareRuleRows(savedFareRules);
+      setHasAppliedPreviewToTable(false);
       setLastSavedAt(new Date().toLocaleString());
       Alert.alert(
         "Saved",
@@ -1009,6 +1018,7 @@ export function usePublicAdminLogic(): PublicAdminViewModel {
     showFareRulesPreview,
     isSaveDisabled,
     hasPendingPreviewChanges,
+    hasAppliedPreviewToTable,
     hasUnsavedChanges,
     setCurrentStep,
     setSelectedQuickMode,
