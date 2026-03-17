@@ -172,6 +172,15 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
     lineHeight: 18,
   },
+  reviewPickerBlock: {
+    marginBottom: 8,
+  },
+  reviewPickerLabel: {
+    fontSize: 13,
+    color: "#c6cfde",
+    fontWeight: "600",
+    marginBottom: 2,
+  },
   previewRowsWrap: {
     maxHeight: 220,
   },

@@ -1020,6 +1020,38 @@ export function PublicAdminView({
                   Use the previews below to verify generated rows before saving.
                 </Text>
 
+                <View style={{ marginBottom: 8 }}>
+                  <Text style={styles.formulaLabel}>
+                    Public fare mode to review
+                  </Text>
+                  <View style={styles.modePickerRow}>
+                    {QUICK_MODES.map((mode) => {
+                      const config = QUICK_MODE_CONFIG[mode];
+                      const isActive = selectedQuickMode === mode;
+
+                      return (
+                        <Pressable
+                          key={`review-${mode}`}
+                          style={[
+                            styles.modePickerButton,
+                            isActive && styles.modePickerButtonActive,
+                          ]}
+                          onPress={() => setSelectedQuickMode(mode)}
+                        >
+                          <Text
+                            style={[
+                              styles.modePickerButtonText,
+                              isActive && styles.modePickerButtonTextActive,
+                            ]}
+                          >
+                            {config.previewLabel}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+
                 <View style={[styles.actionsRow, compactActionsRowStyle]}>
                   <Pressable
                     style={[styles.secondaryButton, compactButtonStyle]}
@@ -1142,6 +1174,34 @@ export function PublicAdminView({
                     )}
                   </View>
                 ) : null}
+
+                <View style={{ marginBottom: 8 }}>
+                  <Text style={styles.formulaLabel}>Rail mode to review</Text>
+                  <View style={styles.modePickerRow}>
+                    {(["LRT1", "LRT2", "MRT", "PNR"] as const).map((mode) => {
+                      const isActive = selectedRailMode === mode;
+                      return (
+                        <Pressable
+                          key={`review-rail-${mode}`}
+                          style={[
+                            styles.modePickerButton,
+                            isActive && styles.modePickerButtonActive,
+                          ]}
+                          onPress={() => setSelectedRailMode(mode)}
+                        >
+                          <Text
+                            style={[
+                              styles.modePickerButtonText,
+                              isActive && styles.modePickerButtonTextActive,
+                            ]}
+                          >
+                            {mode}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
 
                 <View style={[styles.actionsRow, compactActionsRowStyle]}>
                   <Pressable
